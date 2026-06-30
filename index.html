@@ -239,8 +239,14 @@
       display: grid;
       grid-template-columns: repeat(9, minmax(90px, 1fr));
       gap: 10px;
-      height: 118px;
+      height: 126px;
       margin-bottom: 12px;
+    }
+
+    .kpi-grid.overview-kpi {
+      grid-template-columns: repeat(5, minmax(150px, 1fr));
+      height: 126px;
+      max-width: 980px;
     }
 
     .kpi-grid.incident {
@@ -281,11 +287,41 @@
       z-index: 1;
     }
 
+    .kpi .compare {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 8px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 10.5px;
+      font-weight: 800;
+      position: relative;
+      z-index: 1;
+      white-space: nowrap;
+    }
+
+    .compare.good {
+      background: #ecfdf5;
+      color: #15803d;
+    }
+
+    .compare.bad {
+      background: #fef2f2;
+      color: #b91c1c;
+    }
+
+    .compare.neutral {
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
     .grid-overview {
       display: grid;
-      grid-template-columns: 1.25fr 0.75fr;
+      grid-template-columns: 1.15fr 0.85fr;
       gap: 12px;
-      height: calc(100% - 170px);
+      height: 360px;
+      max-height: 360px;
     }
 
     .grid-incident {
@@ -293,7 +329,7 @@
       grid-template-columns: 1.1fr 0.9fr;
       grid-template-rows: 1fr 1fr;
       gap: 12px;
-      height: calc(100% - 170px);
+      height: calc(100% - 178px);
     }
 
     .grid-threat {
@@ -456,11 +492,11 @@
       border: 1px solid rgba(255,255,255,0.7);
     }
 
-    .level-1 { background: #dbeafe; }
-    .level-2 { background: #93c5fd; }
-    .level-3 { background: #60a5fa; color: #fff; }
-    .level-4 { background: #2563eb; color: #fff; }
-    .level-5 { background: #1e3a8a; color: #fff; }
+    .level-1 { background: #fef3c7; color: #78350f; }
+    .level-2 { background: #fdba74; color: #7c2d12; }
+    .level-3 { background: #fb923c; color: #fff; }
+    .level-4 { background: #ef4444; color: #fff; }
+    .level-5 { background: #991b1b; color: #fff; }
 
     .world-map {
       position: relative;
@@ -571,6 +607,7 @@
       .grid-incident,
       .grid-threat {
         height: auto;
+        max-height: none;
         grid-template-columns: 1fr;
         grid-template-rows: auto;
       }
@@ -660,16 +697,32 @@
           <span>KPI · Incident Trend · Department Risk</span>
         </div>
 
-        <div class="kpi-grid">
-          <div class="card kpi"><div class="label">Critical Incidents</div><div class="value" id="kpiCritical">48</div></div>
-          <div class="card kpi"><div class="label">Open Incidents</div><div class="value" id="kpiOpen">126</div></div>
-          <div class="card kpi"><div class="label">Threats Blocked</div><div class="value" id="kpiBlocked">9.8K</div></div>
-          <div class="card kpi"><div class="label">High Risk Assets</div><div class="value" id="kpiAssets">214</div></div>
-          <div class="card kpi"><div class="label">SLA</div><div class="value" id="kpiSla">91.8%</div></div>
-          <div class="card kpi"><div class="label">MTTD</div><div class="value" id="kpiMttd">18m</div></div>
-          <div class="card kpi"><div class="label">MTTR</div><div class="value" id="kpiMttr">5.3h</div></div>
-          <div class="card kpi"><div class="label">False Positive</div><div class="value" id="kpiFp">28.6%</div></div>
-          <div class="card kpi"><div class="label">Automation Rate</div><div class="value" id="kpiAuto">62%</div></div>
+        <div class="kpi-grid overview-kpi">
+          <div class="card kpi">
+            <div class="label">Critical Incidents</div>
+            <div class="value" id="kpiCritical">48</div>
+            <div class="compare bad">▲ 14% vs kỳ trước</div>
+          </div>
+          <div class="card kpi">
+            <div class="label">Open Incidents</div>
+            <div class="value" id="kpiOpen">126</div>
+            <div class="compare bad">▲ 9% vs kỳ trước</div>
+          </div>
+          <div class="card kpi">
+            <div class="label">Threats Blocked</div>
+            <div class="value" id="kpiBlocked">9.8K</div>
+            <div class="compare good">▲ 22% vs kỳ trước</div>
+          </div>
+          <div class="card kpi">
+            <div class="label">SLA</div>
+            <div class="value" id="kpiSla">91.8%</div>
+            <div class="compare good">▲ 3.2% vs kỳ trước</div>
+          </div>
+          <div class="card kpi">
+            <div class="label">MTTR</div>
+            <div class="value" id="kpiMttr">5.3h</div>
+            <div class="compare good">▼ 11% vs kỳ trước</div>
+          </div>
         </div>
 
         <div class="grid-overview">
@@ -703,12 +756,36 @@
         </div>
 
         <div class="kpi-grid incident">
-          <div class="card kpi"><div class="label">Open</div><div class="value">126</div></div>
-          <div class="card kpi"><div class="label">Resolved</div><div class="value">1,356</div></div>
-          <div class="card kpi"><div class="label">Critical</div><div class="value">48</div></div>
-          <div class="card kpi"><div class="label">Escalated</div><div class="value">94</div></div>
-          <div class="card kpi"><div class="label">SLA Breach</div><div class="value">37</div></div>
-          <div class="card kpi"><div class="label">Average Resolution</div><div class="value">5.3h</div></div>
+          <div class="card kpi">
+            <div class="label">Open</div>
+            <div class="value">126</div>
+            <div class="compare bad">▲ 9% vs kỳ trước</div>
+          </div>
+          <div class="card kpi">
+            <div class="label">Resolved</div>
+            <div class="value">1,356</div>
+            <div class="compare good">▲ 18% vs kỳ trước</div>
+          </div>
+          <div class="card kpi">
+            <div class="label">Critical</div>
+            <div class="value">48</div>
+            <div class="compare bad">▲ 14% vs kỳ trước</div>
+          </div>
+          <div class="card kpi">
+            <div class="label">Escalated</div>
+            <div class="value">94</div>
+            <div class="compare neutral">▬ 1% vs kỳ trước</div>
+          </div>
+          <div class="card kpi">
+            <div class="label">SLA Breach</div>
+            <div class="value">37</div>
+            <div class="compare bad">▲ 6% vs kỳ trước</div>
+          </div>
+          <div class="card kpi">
+            <div class="label">Average Resolution</div>
+            <div class="value">5.3h</div>
+            <div class="compare good">▼ 11% vs kỳ trước</div>
+          </div>
         </div>
 
         <div class="grid-incident">
@@ -752,34 +829,10 @@
 
         <div class="grid-threat">
           <div class="card panel">
-            <h4>Attack Map</h4>
+            <h4>Attack by Location</h4>
             <div class="hint">Theo location</div>
-            <div class="world-map">
-              <div class="map-gridline"></div>
-              <div class="continent c1"></div>
-              <div class="continent c2"></div>
-              <div class="continent c3"></div>
-              <div class="continent c4"></div>
-              <div class="continent c5"></div>
-              <div class="continent c6"></div>
-
-              <span class="attack-dot" style="left: 50%; top: 28%; --size: 30px;"></span>
-              <span class="map-label" style="left: 50%; top: 18%;">Russia · 1,284</span>
-
-              <span class="attack-dot orange" style="left: 58%; top: 38%; --size: 24px;"></span>
-              <span class="map-label" style="left: 58%; top: 48%;">Germany · 894</span>
-
-              <span class="attack-dot blue" style="left: 75%; top: 43%; --size: 22px;"></span>
-              <span class="map-label" style="left: 75%; top: 53%;">China · 742</span>
-
-              <span class="attack-dot purple" style="left: 22%; top: 43%; --size: 21px;"></span>
-              <span class="map-label" style="left: 22%; top: 54%;">USA · 681</span>
-
-              <span class="attack-dot orange" style="left: 78%; top: 58%; --size: 19px;"></span>
-              <span class="map-label" style="left: 78%; top: 68%;">Vietnam · 531</span>
-
-              <span class="attack-dot blue" style="left: 64%; top: 55%; --size: 17px;"></span>
-              <span class="map-label" style="left: 64%; top: 65%;">India · 402</span>
+            <div class="chart-wrap">
+              <canvas id="attackLocationChart"></canvas>
             </div>
           </div>
 
@@ -864,6 +917,96 @@
       });
     });
 
+    const valueLabelPlugin = {
+      id: "valueLabelPlugin",
+      afterDatasetsDraw(chart) {
+        const { ctx, chartArea } = chart;
+        if (!chartArea) return;
+
+        ctx.save();
+        ctx.font = "700 11px Inter, Segoe UI, Arial, sans-serif";
+        ctx.fillStyle = "#0f172a";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        const type = chart.config.type;
+
+        chart.data.datasets.forEach((dataset, datasetIndex) => {
+          const meta = chart.getDatasetMeta(datasetIndex);
+          if (meta.hidden) return;
+
+          meta.data.forEach((element, index) => {
+            const raw = dataset.data[index];
+            const parsed = meta._parsed[index];
+            let value = "";
+
+            if (type === "bubble") {
+              const row = Array.isArray(raw) ? raw[0] : raw;
+              value = row && typeof row === "object" ? `${row.y}` : "";
+            } else if (type === "doughnut" || type === "pie") {
+              value = `${raw}%`;
+            } else if (typeof raw === "number") {
+              value = raw >= 1000 ? new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(raw) : raw;
+            } else if (raw && typeof raw === "object") {
+              value = raw.y ?? raw.value ?? "";
+            } else if (parsed && typeof parsed === "object") {
+              value = parsed.y ?? parsed.x ?? "";
+            }
+
+            if (value === "" || value === undefined || value === null) return;
+
+            const pos = element.tooltipPosition ? element.tooltipPosition() : { x: element.x, y: element.y };
+            let x = pos.x;
+            let y = pos.y;
+
+            if (type === "bar") {
+              const horizontal = chart.options.indexAxis === "y";
+              if (horizontal) {
+                x = Math.min(pos.x + 22, chartArea.right - 18);
+                y = pos.y;
+                ctx.textAlign = "left";
+              } else {
+                x = pos.x;
+                y = Math.max(pos.y - 12, chartArea.top + 10);
+                ctx.textAlign = "center";
+              }
+            }
+
+            if (type === "line") {
+              y = Math.max(pos.y - 14, chartArea.top + 10);
+              ctx.textAlign = "center";
+            }
+
+            if (type === "doughnut" || type === "pie") {
+              ctx.fillStyle = "#ffffff";
+              ctx.strokeStyle = "rgba(15, 23, 42, 0.45)";
+              ctx.lineWidth = 3;
+              ctx.strokeText(value, x, y);
+              ctx.fillText(value, x, y);
+              ctx.fillStyle = "#0f172a";
+              return;
+            }
+
+            if (type === "bubble") {
+              ctx.fillStyle = "#ffffff";
+              ctx.strokeStyle = "rgba(15, 23, 42, 0.45)";
+              ctx.lineWidth = 3;
+              ctx.strokeText(value, x, y);
+              ctx.fillText(value, x, y);
+              ctx.fillStyle = "#0f172a";
+              return;
+            }
+
+            ctx.fillText(value, x, y);
+          });
+        });
+
+        ctx.restore();
+      }
+    };
+
+    Chart.register(valueLabelPlugin);
+
     const commonOptions = {
       responsive: true,
       maintainAspectRatio: false,
@@ -879,6 +1022,14 @@
           backgroundColor: "#0f172a",
           padding: 12,
           cornerRadius: 12
+        }
+      },
+      layout: {
+        padding: {
+          top: 18,
+          right: 8,
+          left: 4,
+          bottom: 2
         }
       },
       scales: {
@@ -973,7 +1124,7 @@
           {
             label: "Risk Score",
             data: [86, 78, 64, 71, 69],
-            backgroundColor: ["#dc2626", "#ea580c", "#1d4ed8", "#7c3aed", "#0891b2"],
+            backgroundColor: "#1d4ed8",
             borderRadius: 12
           }
         ]
@@ -1004,13 +1155,13 @@
             label: "Open",
             data: [12, 11, 15, 14, 18, 16, 19, 21, 17, 20, 23, 26, 24, 22, 28, 25],
             backgroundColor: "#ea580c",
-            borderRadius: 9
+            borderRadius: 0
           },
           {
             label: "Resolved",
             data: [31, 34, 36, 32, 42, 45, 41, 48, 52, 47, 50, 55, 58, 54, 62, 60],
             backgroundColor: "#1d4ed8",
-            borderRadius: 9
+            borderRadius: 0
           }
         ]
       },
@@ -1034,6 +1185,9 @@
         responsive: true,
         maintainAspectRatio: false,
         cutout: "62%",
+        layout: {
+          padding: 16
+        },
         plugins: {
           legend: {
             position: "bottom",
@@ -1058,13 +1212,13 @@
     new Chart(document.getElementById("incidentTypeChart"), {
       type: "bar",
       data: {
-        labels: ["Malware", "Phishing", "DDoS", "SQL Injection", "Brute Force", "Web Attack", "Insider Threat"],
+        labels: ["Phishing", "Brute Force", "Malware", "Web Attack", "SQL Injection", "DDoS", "Insider Threat"],
         datasets: [
           {
             label: "Incidents",
-            data: [184, 286, 72, 96, 238, 154, 44],
-            backgroundColor: ["#7c3aed", "#ea580c", "#0891b2", "#dc2626", "#1d4ed8", "#16a34a", "#ca8a04"],
-            borderRadius: 10
+            data: [286, 238, 184, 154, 96, 72, 44],
+            backgroundColor: "#1d4ed8",
+            borderRadius: 0
           }
         ]
       },
@@ -1111,6 +1265,35 @@
       label.textContent = text;
       return label;
     }
+
+
+    new Chart(document.getElementById("attackLocationChart"), {
+      type: "bar",
+      data: {
+        labels: ["Russia", "Germany", "China", "United States", "Vietnam", "India"],
+        datasets: [
+          {
+            label: "Attacks",
+            data: [1284, 894, 742, 681, 531, 402],
+            backgroundColor: "#1d4ed8",
+            borderRadius: 0
+          },
+          {
+            label: "Blocked",
+            data: [1112, 706, 598, 522, 388, 301],
+            backgroundColor: "#16a34a",
+            borderRadius: 0
+          }
+        ]
+      },
+      options: {
+        ...commonOptions,
+        scales: {
+          x: commonOptions.scales.x,
+          y: commonOptions.scales.y
+        }
+      }
+    });
 
     new Chart(document.getElementById("threatActorChart"), {
       type: "bubble",
@@ -1167,6 +1350,11 @@
       }
     });
 
+    function setText(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value;
+    }
+
     const tenantProfiles = {
       all: { critical: "48", open: "126", blocked: "9.8K", assets: "214", sla: "91.8%", mttd: "18m", mttr: "5.3h", fp: "28.6%", auto: "62%" },
       banking: { critical: "18", open: "42", blocked: "3.1K", assets: "78", sla: "86.0%", mttd: "16m", mttr: "6.8h", fp: "31.4%", auto: "58%" },
@@ -1177,15 +1365,15 @@
 
     document.getElementById("tenantSelect").addEventListener("change", (event) => {
       const selected = tenantProfiles[event.target.value];
-      document.getElementById("kpiCritical").textContent = selected.critical;
-      document.getElementById("kpiOpen").textContent = selected.open;
-      document.getElementById("kpiBlocked").textContent = selected.blocked;
-      document.getElementById("kpiAssets").textContent = selected.assets;
-      document.getElementById("kpiSla").textContent = selected.sla;
-      document.getElementById("kpiMttd").textContent = selected.mttd;
-      document.getElementById("kpiMttr").textContent = selected.mttr;
-      document.getElementById("kpiFp").textContent = selected.fp;
-      document.getElementById("kpiAuto").textContent = selected.auto;
+      setText("kpiCritical", selected.critical);
+      setText("kpiOpen", selected.open);
+      setText("kpiBlocked", selected.blocked);
+      setText("kpiAssets", selected.assets);
+      setText("kpiSla", selected.sla);
+      setText("kpiMttd", selected.mttd);
+      setText("kpiMttr", selected.mttr);
+      setText("kpiFp", selected.fp);
+      setText("kpiAuto", selected.auto);
     });
 
     document.getElementById("periodSelect").addEventListener("change", (event) => {
