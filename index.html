@@ -59,7 +59,6 @@
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
       margin-bottom: 22px;
     }
 
@@ -153,8 +152,8 @@
     }
 
     .topbar {
-      height: 70px;
-      flex: 0 0 70px;
+      height: 54px;
+      flex: 0 0 54px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -192,9 +191,23 @@
       white-space: nowrap;
     }
 
+    .pill.selected-filter {
+      display: none;
+      background: #1d4ed8;
+      color: #ffffff;
+      border-color: #1d4ed8;
+      cursor: pointer;
+    }
+
+    .pill.selected-filter.active {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
     .page {
       display: none;
-      height: calc(100vh - 106px);
+      height: calc(100vh - 90px);
       overflow: hidden;
       animation: fadeIn 0.18s ease-in-out;
     }
@@ -244,9 +257,11 @@
     }
 
     .kpi-grid.overview-kpi {
-      grid-template-columns: repeat(5, minmax(150px, 1fr));
+      grid-template-columns: repeat(5, minmax(170px, 1fr));
       height: 126px;
-      max-width: 980px;
+      max-width: none;
+      gap: 16px;
+      margin-bottom: 26px;
     }
 
     .kpi-grid.incident {
@@ -254,7 +269,7 @@
     }
 
     .kpi {
-      padding: 13px;
+      padding: 15px;
       position: relative;
       overflow: hidden;
     }
@@ -318,10 +333,10 @@
 
     .grid-overview {
       display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: 12px;
-      height: 360px;
-      max-height: 360px;
+      grid-template-columns: 1.18fr 0.82fr;
+      gap: 16px;
+      height: 430px;
+      max-height: 430px;
     }
 
     .grid-incident {
@@ -341,7 +356,7 @@
     }
 
     .panel {
-      padding: 15px;
+      padding: 17px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
@@ -354,10 +369,7 @@
     }
 
     .panel .hint {
-      color: var(--muted);
-      font-size: 12px;
-      margin-bottom: 10px;
-      line-height: 1.35;
+      display: none;
     }
 
     .chart-wrap {
@@ -613,7 +625,7 @@
       }
 
       .panel {
-        min-height: 360px;
+        min-height: 380px;
       }
 
       .topbar {
@@ -648,7 +660,6 @@
   <div class="layout">
     <aside>
       <div class="brand">
-        <div class="brand-mark">🛡️</div>
         <div>
           <h1>CyberSec Solutions</h1>
           <p>Managed SOC & Security Services</p>
@@ -656,9 +667,9 @@
       </div>
 
       <div class="nav-title">Pages</div>
-      <button class="nav-item active" data-page="overview">📊 Overview</button>
-      <button class="nav-item" data-page="incident">🚨 Incident Analytics</button>
-      <button class="nav-item" data-page="threat">🌍 Threat Intelligence</button>
+      <button class="nav-item active" data-page="overview">Overview</button>
+      <button class="nav-item" data-page="incident">Incident Analytics</button>
+      <button class="nav-item" data-page="threat">Threat Intelligence</button>
 
       <div class="filter-box">
         <label>Khách hàng / Tenant</label>
@@ -682,11 +693,10 @@
       <section class="topbar">
         <div class="title">
           <h2>Managed SOC Performance Dashboard</h2>
-          <div class="subtitle">Security Provider · SOC · MDR · SIEM · Threat Intelligence</div>
+          
         </div>
         <div class="report-meta">
-          <span class="pill">Business model: MSSP</span>
-          <span class="pill">Data: SIEM · EDR · Email · Firewall · Ticket</span>
+          <span class="pill selected-filter" id="selectedFilter" title="Click để bỏ selection">Selected: All ✕</span>
           <span class="pill" id="lastUpdated">Updated: --</span>
         </div>
       </section>
@@ -694,7 +704,7 @@
       <section class="page active" id="page-overview">
         <div class="page-header">
           <h3>Page: Overview</h3>
-          <span>KPI · Incident Trend · Department Risk</span>
+          <span></span>
         </div>
 
         <div class="kpi-grid overview-kpi">
@@ -752,38 +762,38 @@
       <section class="page" id="page-incident">
         <div class="page-header">
           <h3>Page: Incident Analytics</h3>
-          <span>KPI · Trend · Severity · Type · Heatmap</span>
+          <span></span>
         </div>
 
         <div class="kpi-grid incident">
           <div class="card kpi">
             <div class="label">Open</div>
-            <div class="value">126</div>
+            <div class="value" id="incidentKpiOpen">126</div>
             <div class="compare bad">▲ 9% vs kỳ trước</div>
           </div>
           <div class="card kpi">
             <div class="label">Resolved</div>
-            <div class="value">1,356</div>
+            <div class="value" id="incidentKpiResolved">1,356</div>
             <div class="compare good">▲ 18% vs kỳ trước</div>
           </div>
           <div class="card kpi">
             <div class="label">Critical</div>
-            <div class="value">48</div>
+            <div class="value" id="incidentKpiCritical">48</div>
             <div class="compare bad">▲ 14% vs kỳ trước</div>
           </div>
           <div class="card kpi">
             <div class="label">Escalated</div>
-            <div class="value">94</div>
+            <div class="value" id="incidentKpiEscalated">94</div>
             <div class="compare neutral">▬ 1% vs kỳ trước</div>
           </div>
           <div class="card kpi">
             <div class="label">SLA Breach</div>
-            <div class="value">37</div>
+            <div class="value" id="incidentKpiSlaBreach">37</div>
             <div class="compare bad">▲ 6% vs kỳ trước</div>
           </div>
           <div class="card kpi">
             <div class="label">Average Resolution</div>
-            <div class="value">5.3h</div>
+            <div class="value" id="incidentKpiAvgResolution">5.3h</div>
             <div class="compare good">▼ 11% vs kỳ trước</div>
           </div>
         </div>
@@ -791,7 +801,7 @@
         <div class="grid-incident">
           <div class="card panel">
             <h4>Incident Trend</h4>
-            <div class="hint">Daily incident volume</div>
+            <div class="hint">Line trend: Resolved và Open theo ngày</div>
             <div class="chart-wrap">
               <canvas id="incidentTrendChart"></canvas>
             </div>
@@ -824,7 +834,7 @@
       <section class="page" id="page-threat">
         <div class="page-header">
           <h3>Page: Threat Intelligence</h3>
-          <span>Attack Map · Threat Actor · IOC · Location</span>
+          <span></span>
         </div>
 
         <div class="grid-threat">
@@ -931,6 +941,8 @@
 
         const type = chart.config.type;
 
+        const showStackTotalOnly = chart.options.plugins?.valueLabels?.showStackTotalOnly;
+
         chart.data.datasets.forEach((dataset, datasetIndex) => {
           const meta = chart.getDatasetMeta(datasetIndex);
           if (meta.hidden) return;
@@ -940,7 +952,19 @@
             const parsed = meta._parsed[index];
             let value = "";
 
-            if (type === "bubble") {
+            if (showStackTotalOnly && type === "bar") {
+              const isLastVisibleDataset = datasetIndex === chart.data.datasets.length - 1;
+              if (!isLastVisibleDataset) return;
+
+              const total = chart.data.datasets.reduce((sum, ds, dsIndex) => {
+                const dsMeta = chart.getDatasetMeta(dsIndex);
+                if (dsMeta.hidden) return sum;
+                const v = ds.data[index];
+                return sum + (typeof v === "number" ? v : 0);
+              }, 0);
+
+              value = total >= 1000 ? new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(total) : total;
+            } else if (type === "bubble") {
               const row = Array.isArray(raw) ? raw[0] : raw;
               value = row && typeof row === "object" ? `${row.y}` : "";
             } else if (type === "doughnut" || type === "pie") {
@@ -967,14 +991,18 @@
                 ctx.textAlign = "left";
               } else {
                 x = pos.x;
-                y = Math.max(pos.y - 12, chartArea.top + 10);
+                y = showStackTotalOnly ? Math.max(element.y - 12, chartArea.top + 10) : Math.max(pos.y - 12, chartArea.top + 10);
                 ctx.textAlign = "center";
               }
             }
 
             if (type === "line") {
-              y = Math.max(pos.y - 14, chartArea.top + 10);
+              const offset = datasetIndex === 0 ? 14 : -16;
+              y = datasetIndex === 0
+                ? Math.max(pos.y - offset, chartArea.top + 10)
+                : Math.min(pos.y - offset, chartArea.bottom - 8);
               ctx.textAlign = "center";
+              ctx.fillStyle = dataset.borderColor || "#0f172a";
             }
 
             if (type === "doughnut" || type === "pie") {
@@ -998,6 +1026,7 @@
             }
 
             ctx.fillText(value, x, y);
+            ctx.fillStyle = "#0f172a";
           });
         });
 
@@ -1106,17 +1135,12 @@
 
     document.querySelectorAll(".chart-tab").forEach(tab => {
       tab.addEventListener("click", () => {
-        document.querySelectorAll(".chart-tab").forEach(btn => btn.classList.remove("active"));
-        tab.classList.add("active");
-        const range = tab.dataset.range;
-        overviewTrendChart.data.labels = overviewTrendData[range].labels;
-        overviewTrendChart.data.datasets[0].data = overviewTrendData[range].incidents;
-        overviewTrendChart.data.datasets[1].data = overviewTrendData[range].blocked;
-        overviewTrendChart.update();
+        document.getElementById("periodSelect").value = tab.dataset.range;
+        updateDashboard();
       });
     });
 
-    new Chart(document.getElementById("departmentRiskChart"), {
+    const departmentRiskChart = new Chart(document.getElementById("departmentRiskChart"), {
       type: "bar",
       data: {
         labels: ["Finance", "HR", "IT", "Production", "Customer Service"],
@@ -1146,29 +1170,56 @@
       }
     });
 
-    new Chart(document.getElementById("incidentTrendChart"), {
-      type: "bar",
+    const incidentTrendChart = new Chart(document.getElementById("incidentTrendChart"), {
+      type: "line",
       data: {
         labels: ["01", "03", "05", "07", "09", "11", "13", "15", "17", "19", "21", "23", "25", "27", "29", "30"],
         datasets: [
           {
-            label: "Open",
-            data: [12, 11, 15, 14, 18, 16, 19, 21, 17, 20, 23, 26, 24, 22, 28, 25],
-            backgroundColor: "#ea580c",
-            borderRadius: 0
-          },
-          {
             label: "Resolved",
             data: [31, 34, 36, 32, 42, 45, 41, 48, 52, 47, 50, 55, 58, 54, 62, 60],
-            backgroundColor: "#1d4ed8",
-            borderRadius: 0
+            borderColor: "#1d4ed8",
+            backgroundColor: "rgba(29, 78, 216, 0.10)",
+            pointBackgroundColor: "#1d4ed8",
+            pointBorderColor: "#ffffff",
+            pointBorderWidth: 2,
+            pointRadius: 3.5,
+            pointHoverRadius: 6,
+            tension: 0.36,
+            fill: true
+          },
+          {
+            label: "Open",
+            data: [12, 11, 15, 14, 18, 16, 19, 21, 17, 20, 23, 26, 24, 22, 28, 25],
+            borderColor: "#ea580c",
+            backgroundColor: "rgba(234, 88, 12, 0.08)",
+            pointBackgroundColor: "#ea580c",
+            pointBorderColor: "#ffffff",
+            pointBorderWidth: 2,
+            pointRadius: 3.5,
+            pointHoverRadius: 6,
+            tension: 0.36,
+            fill: false
           }
         ]
       },
-      options: commonOptions
+      options: {
+        ...commonOptions,
+        interaction: {
+          mode: "index",
+          intersect: false
+        },
+        scales: {
+          x: commonOptions.scales.x,
+          y: {
+            ...commonOptions.scales.y,
+            beginAtZero: true
+          }
+        }
+      }
     });
 
-    new Chart(document.getElementById("severityChart"), {
+    const severityChart = new Chart(document.getElementById("severityChart"), {
       type: "doughnut",
       data: {
         labels: ["Critical", "High", "Medium", "Low"],
@@ -1209,7 +1260,7 @@
       }
     });
 
-    new Chart(document.getElementById("incidentTypeChart"), {
+    const incidentTypeChart = new Chart(document.getElementById("incidentTypeChart"), {
       type: "bar",
       data: {
         labels: ["Phishing", "Brute Force", "Malware", "Web Attack", "SQL Injection", "DDoS", "Insider Threat"],
@@ -1267,7 +1318,7 @@
     }
 
 
-    new Chart(document.getElementById("attackLocationChart"), {
+    const attackLocationChart = new Chart(document.getElementById("attackLocationChart"), {
       type: "bar",
       data: {
         labels: ["Russia", "Germany", "China", "United States", "Vietnam", "India"],
@@ -1295,7 +1346,7 @@
       }
     });
 
-    new Chart(document.getElementById("threatActorChart"), {
+    const threatActorChart = new Chart(document.getElementById("threatActorChart"), {
       type: "bubble",
       data: {
         datasets: [
@@ -1350,36 +1401,487 @@
       }
     });
 
+    let interactionFilter = null;
+
+    const focusFactors = {
+      department: {
+        "Finance": { factor: 0.24, label: "Department: Finance" },
+        "HR": { factor: 0.18, label: "Department: HR" },
+        "IT": { factor: 0.20, label: "Department: IT" },
+        "Production": { factor: 0.22, label: "Department: Production" },
+        "Customer Service": { factor: 0.16, label: "Department: Customer Service" }
+      },
+      incidentType: {
+        "Phishing": { factor: 0.26, label: "Incident Type: Phishing" },
+        "Brute Force": { factor: 0.22, label: "Incident Type: Brute Force" },
+        "Malware": { factor: 0.18, label: "Incident Type: Malware" },
+        "Web Attack": { factor: 0.15, label: "Incident Type: Web Attack" },
+        "SQL Injection": { factor: 0.10, label: "Incident Type: SQL Injection" },
+        "DDoS": { factor: 0.07, label: "Incident Type: DDoS" },
+        "Insider Threat": { factor: 0.05, label: "Incident Type: Insider Threat" }
+      },
+      severity: {
+        "Critical": { factor: 0.08, label: "Severity: Critical" },
+        "High": { factor: 0.24, label: "Severity: High" },
+        "Medium": { factor: 0.46, label: "Severity: Medium" },
+        "Low": { factor: 0.22, label: "Severity: Low" }
+      },
+      location: {
+        "Russia": { factor: 0.26, label: "Location: Russia" },
+        "Germany": { factor: 0.18, label: "Location: Germany" },
+        "China": { factor: 0.15, label: "Location: China" },
+        "United States": { factor: 0.14, label: "Location: United States" },
+        "Vietnam": { factor: 0.11, label: "Location: Vietnam" },
+        "India": { factor: 0.08, label: "Location: India" }
+      },
+      actor: {
+        "APT-29": { factor: 0.18, label: "Threat Actor: APT-29" },
+        "FIN7": { factor: 0.14, label: "Threat Actor: FIN7" },
+        "Lazarus": { factor: 0.16, label: "Threat Actor: Lazarus" },
+        "Scattered Spider": { factor: 0.11, label: "Threat Actor: Scattered Spider" },
+        "Unknown Botnet": { factor: 0.22, label: "Threat Actor: Unknown Botnet" },
+        "Insider Cluster": { factor: 0.07, label: "Threat Actor: Insider Cluster" }
+      },
+      trend: {}
+    };
+
+    function getInteractionFactor() {
+      if (!interactionFilter) return 1;
+      const profile = focusFactors[interactionFilter.kind]?.[interactionFilter.label];
+      if (profile) return profile.factor;
+      if (interactionFilter.kind === "trend") return 0.08;
+      return 1;
+    }
+
+    function getInteractionLabel() {
+      if (!interactionFilter) return "";
+      const profile = focusFactors[interactionFilter.kind]?.[interactionFilter.label];
+      if (profile) return profile.label;
+      if (interactionFilter.kind === "trend") return "Period: " + interactionFilter.label;
+      return interactionFilter.label;
+    }
+
+    function setInteraction(kind, label, datasetLabel) {
+      interactionFilter = { kind, label, datasetLabel: datasetLabel || null };
+      updateDashboard();
+    }
+
+    function clearInteraction() {
+      interactionFilter = null;
+      updateDashboard();
+    }
+
+    function updateSelectedFilterPill() {
+      const pill = document.getElementById("selectedFilter");
+      if (!pill) return;
+      const label = getInteractionLabel();
+      if (!label) {
+        pill.classList.remove("active");
+        pill.textContent = "Selected: All ✕";
+        return;
+      }
+      pill.classList.add("active");
+      pill.textContent = "Selected: " + label + " ✕";
+    }
+
+    function bindChartInteraction(chart, kind, labelResolver) {
+      chart.options.onClick = (event, elements) => {
+        if (!elements || !elements.length) return;
+        const element = elements[0];
+        const dataset = chart.data.datasets[element.datasetIndex];
+        const label = labelResolver
+          ? labelResolver(chart, element, dataset)
+          : chart.data.labels[element.index];
+        setInteraction(kind, label, dataset?.label);
+      };
+      chart.update();
+    }
+
+    function emphasizeValues(labels, values, selectedLabel, selectedShare = 70) {
+      const selectedIndex = labels.indexOf(selectedLabel);
+      if (selectedIndex < 0) return values;
+      const result = values.map(value => Math.max(1, Math.round(value * 0.22)));
+      result[selectedIndex] = selectedShare;
+      return result;
+    }
+
+    function emphasizeBarValues(labels, values, selectedLabel) {
+      return values.map((value, index) => {
+        if (labels[index] === selectedLabel) return value;
+        return Math.max(1, Math.round(value * 0.28));
+      });
+    }
+
     function setText(id, value) {
       const el = document.getElementById(id);
       if (el) el.textContent = value;
     }
 
-    const tenantProfiles = {
-      all: { critical: "48", open: "126", blocked: "9.8K", assets: "214", sla: "91.8%", mttd: "18m", mttr: "5.3h", fp: "28.6%", auto: "62%" },
-      banking: { critical: "18", open: "42", blocked: "3.1K", assets: "78", sla: "86.0%", mttd: "16m", mttr: "6.8h", fp: "31.4%", auto: "58%" },
-      retail: { critical: "11", open: "31", blocked: "2.4K", assets: "54", sla: "89.0%", mttd: "21m", mttr: "6.1h", fp: "26.8%", auto: "61%" },
-      manufacturing: { critical: "9", open: "27", blocked: "1.8K", assets: "46", sla: "92.0%", mttd: "19m", mttr: "5.7h", fp: "24.9%", auto: "65%" },
-      tech: { critical: "6", open: "18", blocked: "1.2K", assets: "24", sla: "95.0%", mttd: "15m", mttr: "4.2h", fp: "34.2%", auto: "68%" }
+    function formatNumber(value) {
+      return new Intl.NumberFormat("en-US").format(Math.round(value));
+    }
+
+    function formatCompact(value) {
+      if (value >= 1000) {
+        return new Intl.NumberFormat("en-US", {
+          notation: "compact",
+          maximumFractionDigits: 1
+        }).format(value);
+      }
+      return formatNumber(value);
+    }
+
+    function scaleArray(values, factor) {
+      return values.map(value => Math.max(1, Math.round(value * factor)));
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function updateCompareBadges(periodKey) {
+      const periodLabel = periodKey === "30" ? "kỳ trước" : periodKey === "90" ? "90 ngày trước" : "12 tháng trước";
+
+      const overviewCompare = [
+        ["kpiCritical", "▲ 14% vs " + periodLabel, "bad"],
+        ["kpiOpen", "▲ 9% vs " + periodLabel, "bad"],
+        ["kpiBlocked", "▲ 22% vs " + periodLabel, "good"],
+        ["kpiSla", "▲ 3.2% vs " + periodLabel, "good"],
+        ["kpiMttr", "▼ 11% vs " + periodLabel, "good"]
+      ];
+
+      const incidentCompare = [
+        ["incidentKpiOpen", "▲ 9% vs " + periodLabel, "bad"],
+        ["incidentKpiResolved", "▲ 18% vs " + periodLabel, "good"],
+        ["incidentKpiCritical", "▲ 14% vs " + periodLabel, "bad"],
+        ["incidentKpiEscalated", "▬ 1% vs " + periodLabel, "neutral"],
+        ["incidentKpiSlaBreach", "▲ 6% vs " + periodLabel, "bad"],
+        ["incidentKpiAvgResolution", "▼ 11% vs " + periodLabel, "good"]
+      ];
+
+      [...overviewCompare, ...incidentCompare].forEach(([valueId, text, type]) => {
+        const valueEl = document.getElementById(valueId);
+        const card = valueEl?.closest(".kpi");
+        const compare = card?.querySelector(".compare");
+        if (compare) {
+          compare.className = "compare " + type;
+          compare.textContent = text;
+        }
+      });
+    }
+
+    const tenantFilters = {
+      all: {
+        factor: 1,
+        risk: [86, 78, 64, 71, 69],
+        severity: [8, 24, 46, 22],
+        typeBias: {
+          "Phishing": 1,
+          "Brute Force": 1,
+          "Malware": 1,
+          "Web Attack": 1,
+          "SQL Injection": 1,
+          "DDoS": 1,
+          "Insider Threat": 1
+        },
+        threatBias: 1,
+        heatShift: 0,
+        sla: 91.8,
+        mttr: 5.3
+      },
+      banking: {
+        factor: 0.32,
+        risk: [95, 84, 72, 63, 78],
+        severity: [12, 30, 40, 18],
+        typeBias: {
+          "Phishing": 1.28,
+          "Brute Force": 1.05,
+          "Malware": 0.92,
+          "Web Attack": 1.05,
+          "SQL Injection": 1.14,
+          "DDoS": 0.8,
+          "Insider Threat": 1.2
+        },
+        threatBias: 1.12,
+        heatShift: 1,
+        sla: 86.0,
+        mttr: 6.8
+      },
+      retail: {
+        factor: 0.25,
+        risk: [82, 74, 61, 68, 86],
+        severity: [9, 28, 44, 19],
+        typeBias: {
+          "Phishing": 1.08,
+          "Brute Force": 1.32,
+          "Malware": 0.86,
+          "Web Attack": 1.18,
+          "SQL Injection": 0.92,
+          "DDoS": 1.15,
+          "Insider Threat": 0.8
+        },
+        threatBias: 0.96,
+        heatShift: 0,
+        sla: 89.0,
+        mttr: 6.1
+      },
+      manufacturing: {
+        factor: 0.2,
+        risk: [68, 64, 73, 88, 60],
+        severity: [10, 25, 43, 22],
+        typeBias: {
+          "Phishing": 0.9,
+          "Brute Force": 0.95,
+          "Malware": 1.35,
+          "Web Attack": 0.82,
+          "SQL Injection": 0.75,
+          "DDoS": 0.9,
+          "Insider Threat": 1.28
+        },
+        threatBias: 0.88,
+        heatShift: 0,
+        sla: 92.0,
+        mttr: 5.7
+      },
+      tech: {
+        factor: 0.15,
+        risk: [72, 61, 86, 58, 64],
+        severity: [6, 21, 48, 25],
+        typeBias: {
+          "Phishing": 0.82,
+          "Brute Force": 0.96,
+          "Malware": 0.72,
+          "Web Attack": 1.36,
+          "SQL Injection": 1.32,
+          "DDoS": 1.18,
+          "Insider Threat": 0.7
+        },
+        threatBias: 0.76,
+        heatShift: -1,
+        sla: 95.0,
+        mttr: 4.2
+      }
     };
 
-    document.getElementById("tenantSelect").addEventListener("change", (event) => {
-      const selected = tenantProfiles[event.target.value];
-      setText("kpiCritical", selected.critical);
-      setText("kpiOpen", selected.open);
-      setText("kpiBlocked", selected.blocked);
-      setText("kpiAssets", selected.assets);
-      setText("kpiSla", selected.sla);
-      setText("kpiMttd", selected.mttd);
-      setText("kpiMttr", selected.mttr);
-      setText("kpiFp", selected.fp);
-      setText("kpiAuto", selected.auto);
-    });
+    const periodFilters = {
+      30: {
+        countFactor: 1,
+        slaDelta: 0,
+        mttrDelta: 0,
+        riskDelta: 0,
+        heatShift: 0
+      },
+      90: {
+        countFactor: 2.7,
+        slaDelta: -1.4,
+        mttrDelta: 0.4,
+        riskDelta: -2,
+        heatShift: 0
+      },
+      365: {
+        countFactor: 10.8,
+        slaDelta: -2.8,
+        mttrDelta: 0.9,
+        riskDelta: -4,
+        heatShift: 1
+      }
+    };
 
-    document.getElementById("periodSelect").addEventListener("change", (event) => {
-      const value = event.target.value;
-      document.querySelector(`.chart-tab[data-range="${value}"]`)?.click();
-    });
+    const incidentTrendByPeriod = {
+      30: {
+        labels: ["01", "03", "05", "07", "09", "11", "13", "15", "17", "19", "21", "23", "25", "27", "29", "30"],
+        open: [12, 11, 15, 14, 18, 16, 19, 21, 17, 20, 23, 26, 24, 22, 28, 25],
+        resolved: [31, 34, 36, 32, 42, 45, 41, 48, 52, 47, 50, 55, 58, 54, 62, 60]
+      },
+      90: {
+        labels: ["W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8", "W9", "W10", "W11", "W12"],
+        open: [42, 48, 45, 54, 58, 51, 62, 59, 64, 61, 70, 73],
+        resolved: [124, 132, 140, 151, 162, 148, 170, 165, 180, 177, 191, 198]
+      },
+      365: {
+        labels: ["T7", "T8", "T9", "T10", "T11", "T12", "T1", "T2", "T3", "T4", "T5", "T6"],
+        open: [136, 142, 154, 168, 181, 190, 176, 184, 196, 208, 218, 226],
+        resolved: [392, 410, 430, 455, 486, 512, 498, 522, 544, 570, 594, 618]
+      }
+    };
+
+    const incidentTypeBase = [
+      { type: "Phishing", value: 286 },
+      { type: "Brute Force", value: 238 },
+      { type: "Malware", value: 184 },
+      { type: "Web Attack", value: 154 },
+      { type: "SQL Injection", value: 96 },
+      { type: "DDoS", value: 72 },
+      { type: "Insider Threat", value: 44 }
+    ];
+
+    const attackLocationBase = [
+      { country: "Russia", attacks: 1284, blocked: 1112 },
+      { country: "Germany", attacks: 894, blocked: 706 },
+      { country: "China", attacks: 742, blocked: 598 },
+      { country: "United States", attacks: 681, blocked: 522 },
+      { country: "Vietnam", attacks: 531, blocked: 388 },
+      { country: "India", attacks: 402, blocked: 301 }
+    ];
+
+    const threatActorBase = [
+      { label: "APT-29", x: 82, y: 92, r: 24, color: "rgba(220, 38, 38, .72)" },
+      { label: "FIN7", x: 68, y: 78, r: 19, color: "rgba(234, 88, 12, .72)" },
+      { label: "Lazarus", x: 76, y: 86, r: 22, color: "rgba(124, 58, 237, .72)" },
+      { label: "Scattered Spider", x: 61, y: 72, r: 16, color: "rgba(29, 78, 216, .72)" },
+      { label: "Unknown Botnet", x: 55, y: 58, r: 28, color: "rgba(8, 145, 178, .72)" },
+      { label: "Insider Cluster", x: 34, y: 64, r: 12, color: "rgba(22, 163, 74, .72)" }
+    ];
+
+    function updateHeatmap(tenantCfg, periodCfg) {
+      const heatCells = document.querySelectorAll(".heat-cell");
+      const flattened = heatValues.flat();
+      heatCells.forEach((cell, index) => {
+        const base = flattened[index] || 1;
+        const level = clamp(base + tenantCfg.heatShift + periodCfg.heatShift, 1, 5);
+        cell.className = "heat-cell level-" + level;
+        cell.textContent = level;
+      });
+    }
+
+    function updateDashboard() {
+      const tenantKey = document.getElementById("tenantSelect").value;
+      const periodKey = document.getElementById("periodSelect").value;
+      const tenantCfg = tenantFilters[tenantKey];
+      const periodCfg = periodFilters[periodKey];
+      const interactionFactor = getInteractionFactor();
+      const volumeFactor = tenantCfg.factor * periodCfg.countFactor * interactionFactor;
+
+      document.querySelectorAll(".chart-tab").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.range === periodKey);
+      });
+
+      updateSelectedFilterPill();
+
+      const overviewSla = clamp(tenantCfg.sla + periodCfg.slaDelta, 75, 99.9);
+      const overviewMttr = Math.max(1.2, tenantCfg.mttr + periodCfg.mttrDelta);
+
+      setText("kpiCritical", formatNumber(48 * volumeFactor));
+      setText("kpiOpen", formatNumber(126 * volumeFactor));
+      setText("kpiBlocked", formatCompact(9800 * volumeFactor));
+      setText("kpiSla", overviewSla.toFixed(1) + "%");
+      setText("kpiMttr", overviewMttr.toFixed(1) + "h");
+
+      setText("incidentKpiOpen", formatNumber(126 * volumeFactor));
+      setText("incidentKpiResolved", formatNumber(1356 * volumeFactor));
+      setText("incidentKpiCritical", formatNumber(48 * volumeFactor));
+      setText("incidentKpiEscalated", formatNumber(94 * volumeFactor));
+      setText("incidentKpiSlaBreach", formatNumber(37 * volumeFactor));
+      setText("incidentKpiAvgResolution", overviewMttr.toFixed(1) + "h");
+
+      const overviewData = overviewTrendData[periodKey];
+      overviewTrendChart.data.labels = overviewData.labels;
+      let overviewIncidents = scaleArray(overviewData.incidents, tenantCfg.factor);
+      let overviewBlocked = scaleArray(overviewData.blocked, tenantCfg.factor);
+
+      if (interactionFilter?.kind === "trend") {
+        overviewIncidents = emphasizeBarValues(overviewData.labels, overviewIncidents, interactionFilter.label);
+        overviewBlocked = emphasizeBarValues(overviewData.labels, overviewBlocked, interactionFilter.label);
+      }
+
+      overviewTrendChart.data.datasets[0].data = overviewIncidents;
+      overviewTrendChart.data.datasets[1].data = overviewBlocked;
+      overviewTrendChart.update();
+
+      let departmentRiskValues = tenantCfg.risk.map(value => clamp(value + periodCfg.riskDelta, 0, 100));
+      if (interactionFilter?.kind === "department") {
+        departmentRiskValues = emphasizeBarValues(departmentRiskChart.data.labels, departmentRiskValues, interactionFilter.label);
+      }
+      departmentRiskChart.data.datasets[0].data = departmentRiskValues;
+      departmentRiskChart.update();
+
+      const incidentTrendData = incidentTrendByPeriod[periodKey];
+      incidentTrendChart.data.labels = incidentTrendData.labels;
+      let resolvedTrend = scaleArray(incidentTrendData.resolved, tenantCfg.factor * interactionFactor);
+      let openTrend = scaleArray(incidentTrendData.open, tenantCfg.factor * interactionFactor);
+
+      if (interactionFilter?.kind === "trend") {
+        resolvedTrend = emphasizeBarValues(incidentTrendData.labels, resolvedTrend, interactionFilter.label);
+        openTrend = emphasizeBarValues(incidentTrendData.labels, openTrend, interactionFilter.label);
+      }
+
+      incidentTrendChart.data.datasets[0].data = resolvedTrend;
+      incidentTrendChart.data.datasets[1].data = openTrend;
+      incidentTrendChart.update();
+
+      let severityValues = tenantCfg.severity;
+      if (interactionFilter?.kind === "severity") {
+        severityValues = emphasizeValues(severityChart.data.labels, severityValues, interactionFilter.label, 72);
+      }
+      severityChart.data.datasets[0].data = severityValues;
+      severityChart.update();
+
+      const incidentTypes = incidentTypeBase
+        .map(row => ({
+          type: row.type,
+          value: Math.max(1, Math.round(row.value * periodCfg.countFactor * tenantCfg.factor * tenantCfg.typeBias[row.type]))
+        }))
+        .sort((a, b) => b.value - a.value);
+
+      incidentTypeChart.data.labels = incidentTypes.map(row => row.type);
+      let incidentTypeValues = incidentTypes.map(row => row.value);
+      if (interactionFilter?.kind === "incidentType") {
+        incidentTypeValues = emphasizeBarValues(incidentTypeChart.data.labels, incidentTypeValues, interactionFilter.label);
+      }
+      incidentTypeChart.data.datasets[0].data = incidentTypeValues;
+      incidentTypeChart.update();
+
+      const locationFactor = volumeFactor * tenantCfg.threatBias;
+      attackLocationChart.data.labels = attackLocationBase.map(row => row.country);
+      let locationAttacks = attackLocationBase.map(row => Math.max(1, Math.round(row.attacks * locationFactor)));
+      let locationBlocked = attackLocationBase.map(row => Math.max(1, Math.round(row.blocked * locationFactor)));
+      if (interactionFilter?.kind === "location") {
+        locationAttacks = emphasizeBarValues(attackLocationChart.data.labels, locationAttacks, interactionFilter.label);
+        locationBlocked = emphasizeBarValues(attackLocationChart.data.labels, locationBlocked, interactionFilter.label);
+      }
+      attackLocationChart.data.datasets[0].data = locationAttacks;
+      attackLocationChart.data.datasets[1].data = locationBlocked;
+      attackLocationChart.update();
+
+      threatActorChart.data.datasets = threatActorBase.map(row => {
+        const impactBoost = tenantKey === "banking" ? 5 : tenantKey === "tech" ? 3 : tenantKey === "manufacturing" ? 2 : 0;
+        const activityBoost = periodKey === "365" ? 8 : periodKey === "90" ? 4 : 0;
+        const selectedActor = interactionFilter?.kind === "actor" && interactionFilter.label === row.label;
+        const dimOtherActors = interactionFilter?.kind === "actor" && interactionFilter.label !== row.label;
+        const radiusFactor = selectedActor ? 1.45 : dimOtherActors ? 0.45 : 1;
+
+        return {
+          label: row.label,
+          data: [{
+            x: clamp(row.x + activityBoost, 20, 100),
+            y: clamp(row.y + impactBoost, 40, 100),
+            r: clamp(Math.round(row.r * Math.sqrt(Math.max(0.2, locationFactor)) * radiusFactor), 7, 32)
+          }],
+          backgroundColor: row.color
+        };
+      });
+      threatActorChart.update();
+
+      updateHeatmap(tenantCfg, periodCfg);
+      updateCompareBadges(periodKey);
+    }
+
+    document.getElementById("tenantSelect").addEventListener("change", updateDashboard);
+
+    document.getElementById("periodSelect").addEventListener("change", updateDashboard);
+
+    document.getElementById("selectedFilter")?.addEventListener("click", clearInteraction);
+
+    bindChartInteraction(overviewTrendChart, "trend");
+    bindChartInteraction(departmentRiskChart, "department");
+    bindChartInteraction(incidentTrendChart, "trend");
+    bindChartInteraction(severityChart, "severity");
+    bindChartInteraction(incidentTypeChart, "incidentType");
+    bindChartInteraction(attackLocationChart, "location");
+    bindChartInteraction(threatActorChart, "actor", (chart, element, dataset) => dataset.label);
+
+    updateDashboard();
+
   </script>
 </body>
 </html>
