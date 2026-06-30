@@ -222,6 +222,104 @@ body{font-family:var(--sans);background:var(--bg);color:var(--t1);display:flex;h
 .reco-desc{font-size:11px;color:var(--t2);line-height:1.35;}
 @media(max-width:1200px){.g4,.g3,.g2,.g31,.g21,.matrix{grid-template-columns:1fr 1fr;}.span2,.span3{grid-column:span 1;}.sidebar{width:200px;min-width:200px;}}
 
+
+
+/* ─────────────────────────────────────────────
+   THEME UPDATE: Dark-blue sidebar + very-light-blue workspace
+   Requested: sidebar bên trái xanh dương đậm, background bên phải xanh dương rất nhạt
+───────────────────────────────────────────── */
+body{
+  background:#eaf6ff;
+}
+.sidebar{
+  background:linear-gradient(180deg,#062b5f 0%,#041f49 52%,#031633 100%);
+  border-right:1px solid rgba(255,255,255,.10);
+  box-shadow:8px 0 28px rgba(3,22,51,.22);
+}
+.sb-logo{
+  border-bottom:1px solid rgba(255,255,255,.10);
+}
+.sb-logo-name{color:#F3FAFF;}
+.sb-logo-sub{color:rgba(210,235,255,.58);}
+.sb-lbl{color:rgba(185,222,255,.50);}
+.nav-item{
+  color:rgba(222,240,255,.74);
+}
+.nav-item:hover{
+  background:rgba(83,169,255,.14);
+  color:#FFFFFF;
+  border-color:rgba(144,204,255,.22);
+}
+.nav-item.active{
+  background:rgba(55,157,255,.20);
+  color:#BFE7FF;
+  border-color:rgba(135,207,255,.34);
+}
+.sb-footer{
+  border-top:1px solid rgba(255,255,255,.10);
+}
+.sb-ver{color:rgba(210,235,255,.38);}
+
+.main{
+  --bg-card:#FFFFFF;
+  --bg-card2:#F6FBFF;
+  --border:rgba(22,86,140,.14);
+  --border2:rgba(22,86,140,.25);
+  --cyan:#0078D4;
+  --cyan2:#0098E8;
+  --cyan-dim:rgba(0,120,212,.10);
+  --t1:#0A2540;
+  --t2:#3C6684;
+  --t3:#7C9DB8;
+  background:linear-gradient(180deg,#F3FAFF 0%,#EAF6FF 100%);
+}
+.topbar{
+  background:rgba(248,252,255,.86);
+  border-bottom:1px solid rgba(22,86,140,.14);
+  box-shadow:0 6px 20px rgba(8,48,88,.06);
+}
+.tb-time{
+  background:#FFFFFF;
+  border-color:rgba(22,86,140,.14);
+  color:#3C6684;
+}
+.page{
+  background:transparent;
+}
+.card,.radar-wrap{
+  background:linear-gradient(180deg,#FFFFFF 0%,#F9FCFF 100%);
+  border-color:rgba(22,86,140,.14);
+  box-shadow:0 10px 24px rgba(8,48,88,.06);
+}
+.card:hover{
+  border-color:rgba(22,86,140,.25);
+  box-shadow:0 14px 30px rgba(8,48,88,.10);
+}
+.sec-title{
+  border-bottom-color:rgba(22,86,140,.14);
+}
+.tbl th{
+  border-bottom-color:rgba(22,86,140,.14);
+}
+.tbl td{
+  border-bottom-color:rgba(22,86,140,.07);
+}
+.tbl tr:hover td{
+  background:rgba(0,120,212,.05);
+}
+.bbg,.meter-seg{
+  background:rgba(22,86,140,.10);
+}
+.feed-item{
+  border-bottom-color:rgba(22,86,140,.08);
+}
+.tl-line{
+  background:rgba(22,86,140,.12);
+}
+.page::-webkit-scrollbar-thumb{
+  background:rgba(22,86,140,.24);
+}
+
 </style>
 </head>
 <body>
