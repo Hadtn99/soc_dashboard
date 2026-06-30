@@ -661,7 +661,7 @@
     <aside>
       <div class="brand">
         <div>
-          <h1>CyberSec Solutions</h1>
+          <h1>SOC Dashboard Demo</h1>
           <p>Managed SOC & Security Services</p>
         </div>
       </div>
@@ -1744,6 +1744,20 @@
       });
     }
 
+    const severityBaseColors = ["#dc2626", "#ea580c", "#1d4ed8", "#16a34a"];
+    const severityDimColors = ["rgba(220, 38, 38, 0.22)", "rgba(234, 88, 12, 0.22)", "rgba(29, 78, 216, 0.22)", "rgba(22, 163, 74, 0.22)"];
+
+    function updateSeverityColors() {
+      if (interactionFilter?.kind !== "severity") {
+        severityChart.data.datasets[0].backgroundColor = severityBaseColors;
+        return;
+      }
+
+      severityChart.data.datasets[0].backgroundColor = severityChart.data.labels.map((label, index) => {
+        return label === interactionFilter.label ? severityBaseColors[index] : severityDimColors[index];
+      });
+    }
+
     function updateDashboard() {
       const tenantKey = document.getElementById("tenantSelect").value;
       const periodKey = document.getElementById("periodSelect").value;
@@ -1809,17 +1823,16 @@
       incidentTrendChart.data.datasets[1].data = openTrend;
       incidentTrendChart.update();
 
-      let severityValues = tenantCfg.severity;
-      if (interactionFilter?.kind === "severity") {
-        severityValues = emphasizeValues(severityChart.data.labels, severityValues, interactionFilter.label, 72);
-      }
-      severityChart.data.datasets[0].data = severityValues;
+      severityChart.data.datasets[0].data = tenantCfg.severity;
+      updateSeverityColors();
       severityChart.update();
+
+      const incidentTypeInteractionFactor = interactionFilter?.kind === "severity" ? 1 : interactionFactor;
 
       const incidentTypes = incidentTypeBase
         .map(row => ({
           type: row.type,
-          value: Math.max(1, Math.round(row.value * periodCfg.countFactor * tenantCfg.factor * tenantCfg.typeBias[row.type]))
+          value: Math.max(1, Math.round(row.value * periodCfg.countFactor * tenantCfg.factor * incidentTypeInteractionFactor * tenantCfg.typeBias[row.type]))
         }))
         .sort((a, b) => b.value - a.value);
 
@@ -1876,7 +1889,6 @@
     bindChartInteraction(departmentRiskChart, "department");
     bindChartInteraction(incidentTrendChart, "trend");
     bindChartInteraction(severityChart, "severity");
-    bindChartInteraction(incidentTypeChart, "incidentType");
     bindChartInteraction(attackLocationChart, "location");
     bindChartInteraction(threatActorChart, "actor", (chart, element, dataset) => dataset.label);
 
