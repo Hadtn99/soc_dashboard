@@ -1,1231 +1,202 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SOC Analytics Platform</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SOC Analytics Flow Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-:root {
-  --bg:        #050D1F;
-  --bg-card:   #071428;
-  --bg-card2:  #091832;
-  --sidebar:   #061022;
-  --border:    rgba(0,180,255,0.15);
-  --border2:   rgba(0,180,255,0.28);
-  --cyan:      #00C8FF;
-  --cyan2:     #00E5FF;
-  --cyan-dim:  rgba(0,200,255,0.12);
-  --red:       #FF3D5A;
-  --red-dim:   rgba(255,61,90,0.18);
-  --green:     #00E5A0;
-  --green-dim: rgba(0,229,160,0.13);
-  --amber:     #FFB400;
-  --amber-dim: rgba(255,180,0,0.14);
-  --purple:    #B06AFF;
-  --purple-dim:rgba(176,106,255,0.14);
-  --orange:    #FF7040;
-  --t1: #D8EFFF;
-  --t2: #6FA8CC;
-  --t3: #2E5A7A;
-  --mono: 'JetBrains Mono', monospace;
-  --sans: 'Inter', sans-serif;
+:root{
+  --sidebar:#062a56;
+  --sidebar2:#031d3d;
+  --main:#eef7ff;
+  --card:#ffffff;
+  --card2:#f7fbff;
+  --line:#cfe2f3;
+  --line2:#b7d3ea;
+  --text:#0b2741;
+  --muted:#55738c;
+  --muted2:#7e9ab1;
+  --blue:#1463ff;
+  --cyan:#009de0;
+  --red:#e43d5a;
+  --amber:#e8a100;
+  --green:#00a676;
+  --purple:#7a52d1;
+  --orange:#e56b2f;
+  --shadow:0 12px 28px rgba(21,72,120,.08);
+  --mono:'JetBrains Mono', monospace;
+  --sans:'Inter', sans-serif;
 }
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:var(--sans);background:var(--bg);color:var(--t1);display:flex;height:100vh;overflow:hidden;}
-
-/* SIDEBAR */
-.sidebar{width:220px;min-width:220px;background:var(--sidebar);border-right:1px solid rgba(0,180,255,0.12);display:flex;flex-direction:column;}
-.sb-logo{padding:20px 18px 18px;border-bottom:1px solid rgba(0,180,255,0.1);display:flex;align-items:center;gap:10px;}
-.sb-logo-icon{width:32px;height:32px;border:1.5px solid var(--cyan);border-radius:7px;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;}
-.sb-logo-icon::before{content:'';width:12px;height:12px;border:1.5px solid var(--cyan);border-radius:50%;display:block;}
-.sb-logo-icon::after{content:'';position:absolute;width:5px;height:5px;background:var(--cyan);border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);animation:blink 2s infinite;}
-.sb-logo-name{font-family:var(--mono);font-size:12px;font-weight:700;color:#D8EFFF;letter-spacing:.04em;}
-.sb-logo-sub{font-size:9.5px;color:rgba(160,210,240,.5);text-transform:uppercase;letter-spacing:.08em;margin-top:1px;}
-.sb-section{padding:16px 12px 4px;}
-.sb-lbl{font-size:9px;font-weight:700;color:var(--t3);letter-spacing:.12em;text-transform:uppercase;padding:0 8px 7px;}
-.nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:6px;cursor:pointer;color:rgba(160,210,240,.65);font-size:12.5px;transition:all .18s;margin-bottom:2px;border:1px solid transparent;position:relative;}
-.nav-item:hover{background:rgba(0,180,255,.07);color:#D8EFFF;border-color:rgba(0,180,255,.12);}
-.nav-item.active{background:rgba(0,200,255,.1);color:var(--cyan);border-color:rgba(0,200,255,.2);font-weight:500;}
-.nav-item.active::before{content:'';position:absolute;left:-1px;top:22%;bottom:22%;width:2.5px;background:var(--cyan);border-radius:0 2px 2px 0;box-shadow:0 0 8px rgba(0,200,255,.5);}
-.nav-badge{margin-left:auto;font-family:var(--mono);font-size:10px;font-weight:700;background:var(--red);color:#fff;padding:1px 6px;border-radius:8px;}
-.sb-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(0,180,255,.08);}
-.online-pill{display:flex;align-items:center;gap:7px;background:rgba(0,229,160,.12);border:1px solid rgba(0,229,160,.22);padding:6px 11px;border-radius:5px;font-size:10.5px;color:var(--green);font-family:var(--mono);}
-.online-pill::before{content:'';width:7px;height:7px;background:var(--green);border-radius:50%;animation:blink 1.8s infinite;flex-shrink:0;}
-.sb-ver{margin-top:8px;font-size:10px;color:rgba(100,160,200,.35);font-family:var(--mono);padding:0 2px;}
-
-/* MAIN */
-.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
-.topbar{display:flex;align-items:center;padding:12px 26px;border-bottom:1px solid var(--border);gap:14px;background:rgba(5,13,31,.8);backdrop-filter:blur(10px);flex-shrink:0;}
-.tb-bread{font-size:12.5px;color:var(--t2);flex:1;}
-.tb-bread span{color:var(--t1);font-weight:600;}
-.tb-time{font-family:var(--mono);font-size:11px;color:var(--t2);background:var(--bg-card);border:1px solid var(--border);padding:5px 12px;border-radius:5px;}
-.tb-dot{display:inline-block;width:6px;height:6px;background:var(--red);border-radius:50%;animation:blink 1.4s infinite;margin-right:6px;vertical-align:middle;}
-
-/* PAGES */
-.page{display:none;flex:1;overflow-y:auto;padding:20px 24px 28px;}
-.page.active{display:block;animation:fadein .28s ease;}
-.page::-webkit-scrollbar{width:4px;}
-.page::-webkit-scrollbar-thumb{background:rgba(0,180,255,.2);border-radius:3px;}
-
-/* TYPOGRAPHY */
-.pg-title{font-size:20px;font-weight:700;color:var(--t1);margin-bottom:2px;letter-spacing:-.2px;}
-.pg-sub{font-size:12px;color:var(--t2);margin-bottom:18px;}
-.sec-title{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid var(--border);}
-
-/* GRID */
-.grid{display:grid;gap:14px;}
-.g4{grid-template-columns:repeat(4,1fr);}
-.g3{grid-template-columns:repeat(3,1fr);}
-.g2{grid-template-columns:repeat(2,1fr);}
-.g31{grid-template-columns:3fr 1fr;}
-.g21{grid-template-columns:2fr 1fr;}
-.span2{grid-column:span 2;}
-.span3{grid-column:span 3;}
-.mb14{margin-bottom:14px;}
-
-/* CARD */
-.card{background:var(--bg-card);border:1px solid var(--border);border-radius:9px;padding:16px 18px;position:relative;overflow:hidden;transition:border-color .2s;}
-.card:hover{border-color:var(--border2);}
-.card-top2{border-top:2px solid var(--cyan);}
-.card-top2r{border-top:2px solid var(--red);}
-.card-top2g{border-top:2px solid var(--green);}
-.card-top2a{border-top:2px solid var(--amber);}
-.card-top2p{border-top:2px solid var(--purple);}
-.c-lbl{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;font-weight:600;}
-.c-val{font-family:var(--mono);font-size:30px;font-weight:700;line-height:1;}
-.c-sub{font-size:11px;color:var(--t2);margin-top:5px;}
-.up{color:var(--red);}
-.dn{color:var(--green);}
-.eq{color:var(--t3);}
-
-/* TAG */
-.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:3px;font-family:var(--mono);font-size:10px;font-weight:700;}
-.tc{background:rgba(255,61,90,.18);color:var(--red);border:1px solid rgba(255,61,90,.3);}
-.th{background:rgba(255,180,0,.14);color:var(--amber);border:1px solid rgba(255,180,0,.3);}
-.tm{background:rgba(0,200,255,.12);color:var(--cyan);border:1px solid rgba(0,200,255,.2);}
-.tl{background:rgba(0,229,160,.13);color:var(--green);border:1px solid rgba(0,229,160,.25);}
-.to{background:rgba(255,61,90,.15);color:var(--red);border:1px solid rgba(255,61,90,.25);}
-.ti{background:rgba(255,180,0,.13);color:var(--amber);border:1px solid rgba(255,180,0,.25);}
-.td{background:rgba(0,229,160,.12);color:var(--green);border:1px solid rgba(0,229,160,.25);}
-
-/* TABLE */
-.tbl{width:100%;border-collapse:collapse;font-size:12px;}
-.tbl th{text-align:left;font-size:9.5px;font-weight:700;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;padding:0 10px 8px;border-bottom:1px solid var(--border);}
-.tbl td{padding:8px 10px;border-bottom:1px solid rgba(0,180,255,.05);color:var(--t2);vertical-align:middle;}
-.tbl tr:last-child td{border-bottom:none;}
-.tbl tr:hover td{background:rgba(0,180,255,.04);color:var(--t1);}
-
-/* SPARK */
-.spark{display:flex;align-items:flex-end;gap:2px;height:32px;margin-top:10px;}
-.sp{flex:1;border-radius:2px 2px 0 0;min-height:3px;transition:background .2s;}
-.sp:hover{filter:brightness(1.4);}
-
-/* BAR HORIZ */
-.brow{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
-.blbl{font-size:11px;color:var(--t2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.bbg{flex:2;height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;}
-.bbar{height:100%;border-radius:3px;}
-.bval{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--t1);width:32px;text-align:right;flex-shrink:0;}
-
-/* RISK */
-.rs{display:inline-flex;align-items:center;justify-content:center;width:34px;height:18px;border-radius:3px;font-family:var(--mono);font-size:10px;font-weight:700;}
-.rsh{background:rgba(255,61,90,.18);color:var(--red);border:1px solid rgba(255,61,90,.3);}
-.rsm{background:rgba(255,180,0,.14);color:var(--amber);border:1px solid rgba(255,180,0,.28);}
-.rsl{background:rgba(0,229,160,.12);color:var(--green);border:1px solid rgba(0,229,160,.28);}
-
-/* TIMELINE */
-.tl-item{display:flex;gap:10px;margin-bottom:12px;}
-.tl-dot-col{display:flex;flex-direction:column;align-items:center;flex-shrink:0;}
-.tl-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:3px;}
-.tl-line{flex:1;width:1px;background:rgba(0,180,255,.12);margin-top:4px;min-height:16px;}
-.tl-title{font-size:12px;color:var(--t1);font-weight:500;margin-bottom:2px;}
-.tl-desc{font-size:11px;color:var(--t2);}
-.tl-time{font-family:var(--mono);font-size:10px;color:var(--t3);margin-top:2px;}
-
-/* BUBBLE */
-.bubble-wrap{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;padding:10px 0;}
-.bubble{border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:9px;font-weight:700;color:#fff;cursor:default;transition:transform .2s;flex-shrink:0;}
-.bubble:hover{transform:scale(1.08);}
-
-/* CHART CONTAINER */
-.ch{position:relative;width:100%;}
-
-/* LIVE FEED */
-.feed-item{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid rgba(0,180,255,.06);font-size:11px;}
-.feed-item:last-child{border-bottom:none;}
-.feed-time{font-family:var(--mono);font-size:10px;color:var(--t3);flex-shrink:0;width:40px;}
-.feed-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:3px;}
-.feed-text{color:var(--t2);flex:1;line-height:1.4;}
-.feed-text strong{color:var(--t1);font-weight:600;}
-
-/* METER */
-.meter-wrap{display:flex;gap:5px;margin:10px 0 6px;}
-.meter-seg{flex:1;height:5px;border-radius:2px;background:rgba(255,255,255,.07);}
-.ms-g{background:var(--green);box-shadow:0 0 6px rgba(0,229,160,.35);}
-.ms-a{background:var(--amber);box-shadow:0 0 6px rgba(255,180,0,.35);}
-.ms-r{background:var(--red);box-shadow:0 0 6px rgba(255,61,90,.35);}
-
-/* RADAR */
-.radar-wrap{display:flex;align-items:center;gap:24px;padding:16px;background:var(--bg-card);border:1px solid var(--border);border-radius:9px;margin-bottom:14px;}
-.radar-info{flex:1;}
-.tl-val{font-family:var(--mono);font-size:34px;font-weight:700;color:var(--amber);line-height:1;margin-bottom:3px;}
-.tl-desc{font-size:12px;color:var(--t2);}
-.hero-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;flex-shrink:0;}
-.hkpi-v{font-family:var(--mono);font-size:22px;font-weight:700;}
-.hkpi-l{font-size:9.5px;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-top:2px;}
-
-/* ANIM */
-@keyframes blink{0%,100%{opacity:1;}50%{opacity:.25;}}
-@keyframes sweep{from{transform:rotate(0);}to{transform:rotate(360deg);}}
-@keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
-@keyframes ripple{0%{transform:scale(1);opacity:.4;}100%{transform:scale(2.8);opacity:0;}}
-
-/* F-MONO */
-.fm{font-family:var(--mono);}
-.tc1{color:var(--t1);}
-.tc2{color:var(--t2);}
-.tc3{color:var(--t3);}
-.rcyan{color:var(--cyan);}
-.rred{color:var(--red);}
-.rgreen{color:var(--green);}
-.ramber{color:var(--amber);}
-.rpurp{color:var(--purple);}
-
-
-/* SOC TASK EXTENSIONS */
-.task-chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border);background:rgba(0,200,255,.06);color:var(--t2);border-radius:16px;padding:4px 9px;font-size:10.5px;margin:2px 4px 2px 0;}
-.task-chip strong{color:var(--cyan);font-weight:700;}
-.kpi-formula{font-family:var(--mono);font-size:10px;color:var(--t2);background:rgba(0,180,255,.06);border:1px solid rgba(0,180,255,.12);padding:7px 9px;border-radius:5px;margin-top:8px;line-height:1.45;}
-.pipeline{display:flex;align-items:stretch;gap:8px;overflow-x:auto;padding-bottom:4px;}
-.pipe-step{min-width:126px;background:var(--bg-card2);border:1px solid var(--border);border-radius:8px;padding:11px;position:relative;}
-.pipe-step::after{content:'›';position:absolute;right:-9px;top:50%;transform:translateY(-50%);font-family:var(--mono);color:var(--cyan);font-size:18px;}
-.pipe-step:last-child::after{display:none;}
-.pipe-title{font-size:11px;font-weight:700;color:var(--t1);margin-bottom:5px;}
-.pipe-meta{font-size:9.5px;color:var(--t3);line-height:1.4;font-family:var(--mono);}
-.rulebox{background:rgba(0,200,255,.055);border:1px solid var(--border);border-left:2px solid var(--cyan);border-radius:7px;padding:10px 12px;font-size:11.5px;color:var(--t2);line-height:1.55;}
-.rulebox b{color:var(--t1);}
-.status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:middle;}
-.status-ok{background:var(--green);box-shadow:0 0 6px rgba(0,229,160,.35);}
-.status-warn{background:var(--amber);box-shadow:0 0 6px rgba(255,180,0,.35);}
-.status-bad{background:var(--red);box-shadow:0 0 6px rgba(255,61,90,.35);}
-.exec-note{font-size:11.5px;color:var(--t2);line-height:1.55;}
-.matrix{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
-.matrix-card{background:var(--bg-card2);border:1px solid var(--border);border-radius:8px;padding:11px;min-height:92px;}
-.matrix-title{font-size:11px;font-weight:700;color:var(--t1);margin-bottom:5px;}
-.matrix-desc{font-size:10.5px;color:var(--t2);line-height:1.45;}
-.reco{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid rgba(0,180,255,.06);}
-.reco:last-child{border-bottom:none;}
-.reco-rank{font-family:var(--mono);font-size:11px;color:var(--cyan);border:1px solid rgba(0,200,255,.25);border-radius:4px;padding:2px 6px;background:rgba(0,200,255,.08);}
-.reco-title{font-size:12px;font-weight:700;color:var(--t1);margin-bottom:2px;}
-.reco-desc{font-size:11px;color:var(--t2);line-height:1.35;}
-@media(max-width:1200px){.g4,.g3,.g2,.g31,.g21,.matrix{grid-template-columns:1fr 1fr;}.span2,.span3{grid-column:span 1;}.sidebar{width:200px;min-width:200px;}}
-
-
-
-/* ─────────────────────────────────────────────
-   THEME UPDATE: Dark-blue sidebar + very-light-blue workspace
-   Requested: sidebar bên trái xanh dương đậm, background bên phải xanh dương rất nhạt
-───────────────────────────────────────────── */
-body{
-  background:#eaf6ff;
-}
-.sidebar{
-  background:linear-gradient(180deg,#062b5f 0%,#041f49 52%,#031633 100%);
-  border-right:1px solid rgba(255,255,255,.10);
-  box-shadow:8px 0 28px rgba(3,22,51,.22);
-}
-.sb-logo{
-  border-bottom:1px solid rgba(255,255,255,.10);
-}
-.sb-logo-name{color:#F3FAFF;}
-.sb-logo-sub{color:rgba(210,235,255,.58);}
-.sb-lbl{color:rgba(185,222,255,.50);}
-.nav-item{
-  color:rgba(222,240,255,.74);
-}
-.nav-item:hover{
-  background:rgba(83,169,255,.14);
-  color:#FFFFFF;
-  border-color:rgba(144,204,255,.22);
-}
-.nav-item.active{
-  background:rgba(55,157,255,.20);
-  color:#BFE7FF;
-  border-color:rgba(135,207,255,.34);
-}
-.sb-footer{
-  border-top:1px solid rgba(255,255,255,.10);
-}
-.sb-ver{color:rgba(210,235,255,.38);}
-
-.main{
-  --bg-card:#FFFFFF;
-  --bg-card2:#F6FBFF;
-  --border:rgba(22,86,140,.14);
-  --border2:rgba(22,86,140,.25);
-  --cyan:#0078D4;
-  --cyan2:#0098E8;
-  --cyan-dim:rgba(0,120,212,.10);
-  --t1:#0A2540;
-  --t2:#3C6684;
-  --t3:#7C9DB8;
-  background:linear-gradient(180deg,#F3FAFF 0%,#EAF6FF 100%);
-}
-.topbar{
-  background:rgba(248,252,255,.86);
-  border-bottom:1px solid rgba(22,86,140,.14);
-  box-shadow:0 6px 20px rgba(8,48,88,.06);
-}
-.tb-time{
-  background:#FFFFFF;
-  border-color:rgba(22,86,140,.14);
-  color:#3C6684;
-}
-.page{
-  background:transparent;
-}
-.card,.radar-wrap{
-  background:linear-gradient(180deg,#FFFFFF 0%,#F9FCFF 100%);
-  border-color:rgba(22,86,140,.14);
-  box-shadow:0 10px 24px rgba(8,48,88,.06);
-}
-.card:hover{
-  border-color:rgba(22,86,140,.25);
-  box-shadow:0 14px 30px rgba(8,48,88,.10);
-}
-.sec-title{
-  border-bottom-color:rgba(22,86,140,.14);
-}
-.tbl th{
-  border-bottom-color:rgba(22,86,140,.14);
-}
-.tbl td{
-  border-bottom-color:rgba(22,86,140,.07);
-}
-.tbl tr:hover td{
-  background:rgba(0,120,212,.05);
-}
-.bbg,.meter-seg{
-  background:rgba(22,86,140,.10);
-}
-.feed-item{
-  border-bottom-color:rgba(22,86,140,.08);
-}
-.tl-line{
-  background:rgba(22,86,140,.12);
-}
-.page::-webkit-scrollbar-thumb{
-  background:rgba(22,86,140,.24);
-}
-
+*{box-sizing:border-box;margin:0;padding:0}
+body{height:100vh;display:flex;overflow:hidden;background:var(--main);font-family:var(--sans);color:var(--text)}
+.sidebar{width:248px;min-width:248px;background:linear-gradient(180deg,var(--sidebar),var(--sidebar2));color:#d9ecff;display:flex;flex-direction:column;border-right:1px solid rgba(255,255,255,.12)}
+.logo{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.12);display:flex;align-items:center;gap:12px}
+.logo-mark{width:34px;height:34px;border-radius:10px;border:1.5px solid rgba(255,255,255,.75);display:grid;place-items:center;box-shadow:0 0 24px rgba(91,178,255,.26)}
+.logo-mark:before{content:'';width:13px;height:13px;border-radius:50%;background:#64d8ff;box-shadow:0 0 16px #64d8ff}
+.logo-title{font-family:var(--mono);font-size:12px;font-weight:800;letter-spacing:.05em}.logo-sub{font-size:10px;color:#99c7f4;letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
+.nav{padding:16px 12px 10px;overflow:auto}.nav::-webkit-scrollbar{width:4px}.nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:8px}
+.nav-label{font-size:9px;color:#7fb3e9;text-transform:uppercase;letter-spacing:.14em;font-weight:800;padding:0 10px 8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:10px;color:#c7e3ff;font-size:12.5px;cursor:pointer;border:1px solid transparent;margin-bottom:4px;transition:.18s}
+.nav-item span:first-child{width:20px;text-align:center;color:#7bd6ff}.nav-item:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.14)}
+.nav-item.active{background:#ffffff;color:#072d5a;border-color:#fff;font-weight:800;box-shadow:0 12px 26px rgba(0,0,0,.14)}
+.nav-item.active span:first-child{color:var(--blue)}.badge{margin-left:auto;background:var(--red);color:white;border-radius:99px;padding:2px 7px;font-family:var(--mono);font-size:10px}
+.sidebar-foot{margin-top:auto;padding:14px 16px;border-top:1px solid rgba(255,255,255,.12)}.status{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.13);padding:8px 10px;border-radius:10px;font-family:var(--mono);font-size:10px;color:#bfffe9}.status:before{content:'';width:7px;height:7px;background:#00e0a4;border-radius:50%;box-shadow:0 0 10px #00e0a4}.ver{font-family:var(--mono);font-size:10px;color:#8fbbe8;margin-top:8px}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:radial-gradient(circle at top right,#dff1ff 0,#eef7ff 38%,#f6fbff 100%)}
+.topbar{height:58px;display:flex;align-items:center;padding:0 26px;background:rgba(255,255,255,.74);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);gap:14px;flex-shrink:0}.breadcrumb{font-size:13px;color:var(--muted);flex:1}.breadcrumb span{font-weight:800;color:var(--text)}.clock{font-family:var(--mono);font-size:11px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:7px 11px;color:var(--muted)}.clock:before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:8px;vertical-align:middle}
+.page{display:none;flex:1;overflow:auto;padding:22px 26px 34px}.page.active{display:block}.page::-webkit-scrollbar{width:7px}.page::-webkit-scrollbar-thumb{background:#bad4e9;border-radius:8px}.title-row{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:16px}.pg-title{font-size:22px;font-weight:850;letter-spacing:-.03em}.period{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 10px}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}.g5{grid-template-columns:repeat(5,minmax(0,1fr))}.span2{grid-column:span 2}.span3{grid-column:span 3}.mb{margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:16px;overflow:hidden}.card.compact{padding:13px 14px}.card-title{font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:.08em;color:#55738c;margin-bottom:10px}.metric-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;color:var(--muted2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.metric-value{font-family:var(--mono);font-size:30px;font-weight:800;margin-top:5px;line-height:1}.metric-sub{font-size:11px;color:var(--muted);margin-top:5px}.blue{color:var(--blue)}.cyan{color:var(--cyan)}.red{color:var(--red)}.amber{color:var(--amber)}.green{color:var(--green)}.purple{color:var(--purple)}.orange{color:var(--orange)}.mono{font-family:var(--mono)}
+.step-card{display:flex;align-items:center;gap:12px}.step-no{font-family:var(--mono);font-weight:900;font-size:18px;color:#fff;background:var(--blue);width:38px;height:38px;border-radius:12px;display:grid;place-items:center;box-shadow:0 10px 22px rgba(20,99,255,.18)}.step-name{font-weight:850;font-size:13px}.step-kpi{font-family:var(--mono);font-size:18px;font-weight:850;margin-top:2px}.step-unit{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.chart{height:228px;position:relative}.chart.sm{height:172px}.chart.lg{height:272px}.chart.xl{height:310px}
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:12px}.tbl th{text-align:left;font-size:9.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted2);font-weight:850;padding:0 10px 9px;border-bottom:1px solid var(--line)}.tbl td{padding:9px 10px;border-bottom:1px solid #e7f0f8;color:#31526d;vertical-align:middle}.tbl tr:last-child td{border-bottom:none}.tbl tr:hover td{background:#f4faff;color:#102d47}.tag{display:inline-flex;align-items:center;border-radius:999px;padding:3px 8px;font-family:var(--mono);font-size:10px;font-weight:800}.tag.red{background:#ffe9ee;color:var(--red)}.tag.amber{background:#fff4d8;color:#a87500}.tag.green{background:#dff8ee;color:#007a58}.tag.blue{background:#e4efff;color:var(--blue)}.tag.purple{background:#eee8ff;color:var(--purple)}
+.status-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.mini{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:11px}.mini-v{font-family:var(--mono);font-weight:850;font-size:18px}.mini-l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.heatmap{display:grid;grid-template-columns:32px 1fr;gap:8px;align-items:stretch}.days{display:grid;grid-template-rows:repeat(7,1fr);font-family:var(--mono);font-size:10px;color:var(--muted2);align-items:center}.heat-cells{display:grid;grid-template-rows:repeat(7,1fr);gap:4px}.heat-row{display:grid;grid-template-columns:repeat(24,1fr);gap:4px}.heat-cell{height:17px;border-radius:4px;background:#d8edf9}.h1{background:#c9f3e5}.h2{background:#ffedba}.h3{background:#ffd1d9}.h4{background:#ef5a70}.flow-bar{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin-bottom:14px}.flow-pill{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;box-shadow:var(--shadow)}.flow-pill b{display:block;font-family:var(--mono);font-size:11px;color:var(--blue);margin-bottom:3px}.flow-pill span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:800}
+@media(max-width:1180px){.g4,.g5{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(2,1fr)}.span2,.span3{grid-column:auto}.flow-bar{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:760px){body{display:block;overflow:auto}.sidebar{width:100%;min-width:0;height:auto}.main{min-height:100vh}.g2,.g3,.g4,.g5{grid-template-columns:1fr}.topbar{display:none}.page{padding:16px}.flow-bar{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
+<aside class="sidebar">
+  <div class="logo"><div class="logo-mark"></div><div><div class="logo-title">SOC ANALYTICS</div><div class="logo-sub">Flow Dashboard</div></div></div>
+  <nav class="nav">
+    <div class="nav-label">Dashboard Flow</div>
+    <div class="nav-item active" onclick="showPage('executive',this)"><span>01</span> Executive</div>
+    <div class="nav-item" onclick="showPage('operations',this)"><span>02</span> SOC Operations</div>
+    <div class="nav-item" onclick="showPage('incident',this)"><span>03</span> Alert & Incident <b class="badge">7</b></div>
+    <div class="nav-item" onclick="showPage('detection',this)"><span>04</span> Detection & Anomaly</div>
+    <div class="nav-item" onclick="showPage('kpi',this)"><span>05</span> KPI & SLA</div>
+    <div class="nav-item" onclick="showPage('pipeline',this)"><span>06</span> Data Pipeline</div>
+    <div class="nav-item" onclick="showPage('ueba',this)"><span>07</span> UBA / UEBA</div>
+    <div class="nav-item" onclick="showPage('optimization',this)"><span>08</span> Optimization</div>
+  </nav>
+  <div class="sidebar-foot"><div class="status">SYSTEMS OPERATIONAL</div><div class="ver">v3.0 · card/chart only</div></div>
+</aside>
+<main class="main">
+  <div class="topbar"><div class="breadcrumb" id="breadcrumb">SOC Analytics / <span>Executive</span></div><div class="clock" id="clock">--</div></div>
 
-<!-- ══ SIDEBAR ══ -->
-<nav class="sidebar">
-  <div class="sb-logo">
-    <div class="sb-logo-icon"></div>
-    <div>
-      <div class="sb-logo-name">SOC Platform</div>
-      <div class="sb-logo-sub">Analytics Center</div>
+  <section class="page active" id="page-executive">
+    <div class="title-row"><h1 class="pg-title">01 · Executive Dashboard</h1><div class="period">Today · ICT</div></div>
+    <div class="flow-bar">
+      <div class="flow-pill"><b>01</b><span>Ingest</span></div><div class="flow-pill"><b>02</b><span>Normalize</span></div><div class="flow-pill"><b>03</b><span>Detect</span></div><div class="flow-pill"><b>04</b><span>Alert</span></div><div class="flow-pill"><b>05</b><span>Triage</span></div><div class="flow-pill"><b>06</b><span>Investigate</span></div><div class="flow-pill"><b>07</b><span>Contain</span></div><div class="flow-pill"><b>08</b><span>Improve</span></div>
     </div>
-  </div>
-  <div class="sb-section">
-    <div class="sb-lbl">Navigation</div>
-    <div class="nav-item active" onclick="showPage('overview',this)"><span>⬡</span> Overview</div>
-    <div class="nav-item" onclick="showPage('incident',this)"><span>⚡</span> Incident Analytics <span class="nav-badge">7</span></div>
-    <div class="nav-item" onclick="showPage('threat',this)"><span>◎</span> Threat Analytics</div>
-    <div class="nav-item" onclick="showPage('uba',this)"><span>◈</span> User Behavior Analytics</div>
-    <div class="nav-item" onclick="showPage('ops',this)"><span>▦</span> Log / Alert / Ticket</div>
-    <div class="nav-item" onclick="showPage('anomaly',this)"><span>△</span> Anomaly Detection <span class="nav-badge">11</span></div>
-    <div class="nav-item" onclick="showPage('kpi',this)"><span>◫</span> KPI / SLA Center</div>
-    <div class="nav-item" onclick="showPage('etl',this)"><span>⛓</span> ETL & Data Quality</div>
-    <div class="nav-item" onclick="showPage('process',this)"><span>⟲</span> Process Optimization</div>
-  </div>
-  <div class="sb-footer">
-    <div class="online-pill">All Systems Operational</div>
-    <div class="sb-ver">v2.4.1 · Updated 1m ago</div>
-  </div>
-</nav>
-
-<!-- ══ MAIN ══ -->
-<div class="main">
-  <div class="topbar">
-    <div class="tb-bread" id="breadcrumb">Security Operations / <span>Overview</span></div>
-    <div class="tb-time"><span class="tb-dot"></span><span id="live-time">Tue 30 Jun 2026 — 08:42:15 ICT</span></div>
-  </div>
-
-  <!-- ══════ PAGE: OVERVIEW ══════ -->
-  <div class="page active" id="page-overview">
-    <div class="pg-title">Tình hình An toàn Thông tin Hôm nay</div>
-    <div class="pg-sub">Tổng quan toàn diện · Cập nhật real-time · 30 tháng 6, 2026</div>
-    <div style="margin-bottom:14px;">
-      <span class="task-chip"><strong>01</strong> Log / Alert / Incident / Ticket</span>
-      <span class="task-chip"><strong>02</strong> Anomaly & Spike Detection</span>
-      <span class="task-chip"><strong>03</strong> MTTD · MTTR · SLA · FPR</span>
-      <span class="task-chip"><strong>04</strong> Executive + Real-time Ops Dashboard</span>
-      <span class="task-chip"><strong>05</strong> ETL đa nguồn</span>
-      <span class="task-chip"><strong>06</strong> UBA / UEBA</span>
-      <span class="task-chip"><strong>07</strong> Bottleneck & Automation</span>
+    <div class="grid g4 mb">
+      <div class="card compact"><div class="metric-label">Risk Level</div><div class="metric-value amber">Elevated</div><div class="metric-sub">Level 3 / 5</div></div>
+      <div class="card compact"><div class="metric-label">Open Incidents</div><div class="metric-value red">7</div><div class="metric-sub">Critical: 3</div></div>
+      <div class="card compact"><div class="metric-label">Alerts Today</div><div class="metric-value blue">1,847</div><div class="metric-sub">Deduped: 1,235</div></div>
+      <div class="card compact"><div class="metric-label">Containment Rate</div><div class="metric-value green">94.2%</div><div class="metric-sub">MTTR: 48 min</div></div>
     </div>
-
-    <!-- RADAR HERO -->
-    <div class="radar-wrap">
-      <svg width="150" height="150" viewBox="0 0 150 150">
-        <circle cx="75" cy="75" r="68" fill="none" stroke="rgba(0,180,255,.1)" stroke-width=".8"/>
-        <circle cx="75" cy="75" r="50" fill="none" stroke="rgba(0,180,255,.1)" stroke-width=".8"/>
-        <circle cx="75" cy="75" r="32" fill="none" stroke="rgba(0,180,255,.1)" stroke-width=".8"/>
-        <circle cx="75" cy="75" r="14" fill="rgba(0,200,255,.15)" stroke="#00C8FF" stroke-width="1"/>
-        <line x1="75" y1="7" x2="75" y2="143" stroke="rgba(0,180,255,.07)" stroke-width=".7"/>
-        <line x1="7" y1="75" x2="143" y2="75" stroke="rgba(0,180,255,.07)" stroke-width=".7"/>
-        <g style="transform-origin:75px 75px;animation:sweep 4s linear infinite;">
-          <path d="M75,75 L75,7 A68,68 0 0,1 143,99 Z" fill="url(#sg)" opacity=".55"/>
-        </g>
-        <defs><radialGradient id="sg" cx="0%" cy="50%"><stop offset="0%" stop-color="#00C8FF" stop-opacity=".35"/><stop offset="100%" stop-color="#00C8FF" stop-opacity="0"/></radialGradient></defs>
-        <circle cx="108" cy="42" r="3.5" fill="#FF3D5A" style="animation:blink 2.5s infinite;"/>
-        <circle cx="50" cy="105" r="3" fill="#FFB400" style="animation:blink 2.5s .8s infinite;"/>
-        <circle cx="120" cy="88" r="3" fill="#FF3D5A" style="animation:blink 2.5s 1.6s infinite;"/>
-        <circle cx="38" cy="52" r="2.5" fill="#00C8FF" style="animation:blink 2.5s .4s infinite;"/>
-        <circle cx="75" cy="75" r="4" fill="#00C8FF"/>
-      </svg>
-      <div class="radar-info">
-        <div style="font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;font-family:var(--mono);">Mức độ rủi ro tổng thể</div>
-        <div class="tl-val">ELEVATED</div>
-        <div class="tl-desc" style="margin-bottom:10px;">Môi trường đang hoạt động — Tăng 1 cấp so với hôm qua</div>
-        <div class="meter-wrap">
-          <div class="meter-seg ms-g"></div><div class="meter-seg ms-g"></div>
-          <div class="meter-seg ms-a"></div><div class="meter-seg ms-a"></div><div class="meter-seg ms-a"></div>
-          <div class="meter-seg"></div><div class="meter-seg"></div><div class="meter-seg"></div>
-        </div>
-        <div style="display:flex;gap:14px;font-size:9.5px;font-family:var(--mono);">
-          <span class="rgreen">● LOW</span><span class="ramber">● ELEVATED</span><span class="rred">● CRITICAL</span>
-        </div>
-      </div>
-      <div class="hero-kpis">
-        <div><div class="hkpi-v rred">7</div><div class="hkpi-l">Active<br>Incidents</div></div>
-        <div><div class="hkpi-v ramber">3</div><div class="hkpi-l">Critical<br>Unresolved</div></div>
-        <div><div class="hkpi-v rcyan">1,847</div><div class="hkpi-l">Alerts<br>Today</div></div>
-        <div><div class="hkpi-v rgreen">94.2%</div><div class="hkpi-l">Containment<br>Rate</div></div>
-        <div><div class="hkpi-v rcyan" style="font-size:19px;">14 min</div><div class="hkpi-l">Avg MTTD</div></div>
-        <div><div class="hkpi-v rgreen" style="font-size:19px;">48 min</div><div class="hkpi-l">Avg MTTR</div></div>
-      </div>
+    <div class="grid g3 mb">
+      <div class="card span2"><div class="card-title">Risk & incident trend · 14 days</div><div class="chart"><canvas id="execRiskTrend"></canvas></div></div>
+      <div class="card"><div class="card-title">Incident mix</div><div class="chart sm"><canvas id="execIncidentMix"></canvas></div><div class="status-grid" style="margin-top:10px"><div class="mini"><div class="mini-v red">7</div><div class="mini-l">Malware</div></div><div class="mini"><div class="mini-v amber">6</div><div class="mini-l">Phishing</div></div><div class="mini"><div class="mini-v purple">5</div><div class="mini-l">Credential</div></div><div class="mini"><div class="mini-v cyan">4</div><div class="mini-l">Web</div></div></div></div>
     </div>
-
-    <!-- 4 KPI cards -->
-    <div class="grid g4 mb14">
-      <div class="card card-top2r">
-        <div class="c-lbl">Sự cố nghiêm trọng</div>
-        <div class="c-val rred">3</div>
-        <div class="c-sub"><span class="up">↑ +2</span> so với hôm qua</div>
-        <div class="spark">
-          <div class="sp" style="height:30%;background:rgba(255,61,90,.3);"></div>
-          <div class="sp" style="height:45%;background:rgba(255,61,90,.3);"></div>
-          <div class="sp" style="height:20%;background:rgba(255,61,90,.3);"></div>
-          <div class="sp" style="height:70%;background:rgba(255,61,90,.5);"></div>
-          <div class="sp" style="height:60%;background:rgba(255,61,90,.5);"></div>
-          <div class="sp" style="height:100%;background:var(--red);"></div>
-          <div class="sp" style="height:85%;background:var(--red);"></div>
-        </div>
-      </div>
-      <div class="card card-top2a">
-        <div class="c-lbl">Tổng alerts hôm nay</div>
-        <div class="c-val ramber">1,847</div>
-        <div class="c-sub"><span class="up">↑ +12%</span> so với TB tuần</div>
-        <div class="spark">
-          <div class="sp" style="height:40%;background:rgba(255,180,0,.3);"></div>
-          <div class="sp" style="height:55%;background:rgba(255,180,0,.3);"></div>
-          <div class="sp" style="height:35%;background:rgba(255,180,0,.4);"></div>
-          <div class="sp" style="height:70%;background:rgba(255,180,0,.5);"></div>
-          <div class="sp" style="height:80%;background:rgba(255,180,0,.6);"></div>
-          <div class="sp" style="height:90%;background:var(--amber);"></div>
-          <div class="sp" style="height:100%;background:var(--amber);"></div>
-        </div>
-      </div>
-      <div class="card card-top2g">
-        <div class="c-lbl">Đã xử lý hôm nay</div>
-        <div class="c-val rgreen">1,724</div>
-        <div class="c-sub"><span class="dn">93.3%</span> tỷ lệ xử lý</div>
-        <div class="spark">
-          <div class="sp" style="height:50%;background:rgba(0,229,160,.25);"></div>
-          <div class="sp" style="height:65%;background:rgba(0,229,160,.3);"></div>
-          <div class="sp" style="height:45%;background:rgba(0,229,160,.3);"></div>
-          <div class="sp" style="height:80%;background:rgba(0,229,160,.45);"></div>
-          <div class="sp" style="height:85%;background:rgba(0,229,160,.55);"></div>
-          <div class="sp" style="height:90%;background:var(--green);"></div>
-          <div class="sp" style="height:95%;background:var(--green);"></div>
-        </div>
-      </div>
-      <div class="card card-top2">
-        <div class="c-lbl">Thiết bị giám sát</div>
-        <div class="c-val rcyan">3,412</div>
-        <div class="c-sub"><span class="dn">99.7%</span> online</div>
-        <div style="margin-top:10px;">
-          <div class="brow"><span class="blbl">Servers</span><div class="bbg"><div class="bbar" style="width:95%;background:var(--cyan);"></div></div><span class="bval">487</span></div>
-          <div class="brow"><span class="blbl">Endpoints</span><div class="bbg"><div class="bbar" style="width:82%;background:var(--cyan);"></div></div><span class="bval">2841</span></div>
-          <div class="brow"><span class="blbl">Network</span><div class="bbg"><div class="bbar" style="width:25%;background:var(--cyan);"></div></div><span class="bval">84</span></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Row 2: Charts -->
-    <div class="grid g3 mb14">
-      <!-- Alerts 7 ngày - Bar chart -->
-      <div class="card span2">
-        <div class="sec-title">Alerts theo ngày — 7 ngày gần nhất</div>
-        <div class="ch" style="height:170px;"><canvas id="alertsBar"></canvas></div>
-      </div>
-      <!-- Loại tấn công - Donut -->
-      <div class="card">
-        <div class="sec-title">Phân loại tấn công</div>
-        <div class="ch" style="height:130px;"><canvas id="attackDonut"></canvas></div>
-        <div style="margin-top:10px;">
-          <div class="brow"><span class="blbl">Malware</span><div class="bbg"><div class="bbar" style="width:43%;background:var(--red);"></div></div><span class="bval rred">43%</span></div>
-          <div class="brow"><span class="blbl">Phishing</span><div class="bbg"><div class="bbar" style="width:29%;background:var(--amber);"></div></div><span class="bval ramber">29%</span></div>
-          <div class="brow"><span class="blbl">Brute Force</span><div class="bbg"><div class="bbar" style="width:19%;background:var(--cyan);"></div></div><span class="bval rcyan">19%</span></div>
-          <div class="brow"><span class="blbl">Insider</span><div class="bbg"><div class="bbar" style="width:9%;background:var(--purple);"></div></div><span class="bval rpurp">9%</span></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Row 3: Threats + Timeline -->
     <div class="grid g3">
-      <!-- Top threats -->
-      <div class="card">
-        <div class="sec-title">Top mối đe dọa hôm nay</div>
-        <table class="tbl">
-          <thead><tr><th>Loại</th><th>Nguồn</th><th>SL</th></tr></thead>
-          <tbody>
-            <tr><td><span class="tag tc">Ransomware</span></td><td class="fm" style="font-size:10.5px;">185.220.x.x</td><td class="fm rred">3</td></tr>
-            <tr><td><span class="tag th">Phishing</span></td><td class="fm" style="font-size:10.5px;">Email</td><td class="fm ramber">12</td></tr>
-            <tr><td><span class="tag th">C2 Callback</span></td><td class="fm" style="font-size:10.5px;">45.77.x.x</td><td class="fm ramber">7</td></tr>
-            <tr><td><span class="tag tm">Brute Force</span></td><td class="fm" style="font-size:10.5px;">Multi</td><td class="fm rcyan">24</td></tr>
-            <tr><td><span class="tag tm">SQLi</span></td><td class="fm" style="font-size:10.5px;">Web GW</td><td class="fm rcyan">9</td></tr>
-            <tr><td><span class="tag tl">Port Scan</span></td><td class="fm" style="font-size:10.5px;">External</td><td class="fm rgreen">41</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <!-- Hệ thống bị ảnh hưởng - Bubble -->
-      <div class="card">
-        <div class="sec-title">Threat Actor — Bubble Map</div>
-        <div class="bubble-wrap" id="bubble-wrap"></div>
-      </div>
-      <!-- Timeline -->
-      <div class="card">
-        <div class="sec-title">Sự kiện quan trọng 24h</div>
-        <div class="tl-item">
-          <div class="tl-dot-col"><div class="tl-dot" style="background:var(--red);"></div><div class="tl-line"></div></div>
-          <div><div class="tl-title">Ransomware — Finance Segment</div><div class="tl-desc">FS-SHARE-04 bị mã hóa. Đã cô lập.</div><div class="tl-time">08:31 · INC-0847</div></div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-dot-col"><div class="tl-dot" style="background:var(--red);"></div><div class="tl-line"></div></div>
-          <div><div class="tl-title">Account compromise — VP Sales</div><div class="tl-desc">Impossible travel VN → SG trong 4 phút.</div><div class="tl-time">07:12 · INC-0844</div></div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-dot-col"><div class="tl-dot" style="background:var(--amber);"></div><div class="tl-line"></div></div>
-          <div><div class="tl-title">C2 callback phát hiện</div><div class="tl-desc">WS-0312 giao tiếp với 45.77.x.x:443.</div><div class="tl-time">05:44 · INC-0839</div></div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-dot-col"><div class="tl-dot" style="background:var(--amber);"></div><div class="tl-line"></div></div>
-          <div><div class="tl-title">Brute force VPN — 847 lần</div><div class="tl-desc">IP 203.0.113.x bị block. MFA kích hoạt.</div><div class="tl-time">03:18 · INC-0831</div></div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-dot-col"><div class="tl-dot" style="background:var(--green);"></div></div>
-          <div><div class="tl-title">Patch CVE-2026-0412 hoàn thành</div><div class="tl-desc">487/487 servers. Không gián đoạn.</div><div class="tl-time">01:05 · AUTO-PATCH</div></div>
-        </div>
-      </div>
+      <div class="card"><div class="card-title">SOC KPI Snapshot</div><div class="status-grid"><div class="mini"><div class="mini-v green">14m</div><div class="mini-l">MTTD</div></div><div class="mini"><div class="mini-v green">48m</div><div class="mini-l">MTTR</div></div><div class="mini"><div class="mini-v amber">94%</div><div class="mini-l">SLA</div></div><div class="mini"><div class="mini-v red">22%</div><div class="mini-l">FPR</div></div></div></div>
+      <div class="card"><div class="card-title">Top attack vectors</div><div class="chart sm"><canvas id="execVectors"></canvas></div></div>
+      <div class="card"><div class="card-title">Top active risks</div><table class="tbl"><thead><tr><th>Entity</th><th>Type</th><th>Score</th></tr></thead><tbody><tr><td>nvan@corp.vn</td><td><span class="tag red">UBA</span></td><td class="mono red">96</td></tr><tr><td>VPN-GW-02</td><td><span class="tag amber">Spike</span></td><td class="mono red">91</td></tr><tr><td>WS-0312</td><td><span class="tag purple">C2</span></td><td class="mono amber">88</td></tr><tr><td>CloudTrail</td><td><span class="tag blue">IAM</span></td><td class="mono amber">64</td></tr></tbody></table></div>
     </div>
-  </div>
+  </section>
 
-  <!-- ══════ PAGE: INCIDENT ══════ -->
-  <div class="page" id="page-incident">
-    <div class="pg-title">Incident Analytics</div>
-    <div class="pg-sub">Phân tích chi tiết sự cố bảo mật · Tháng 6/2026</div>
-
-    <div class="grid g4 mb14">
-      <div class="card card-top2r"><div class="c-lbl">Open Incidents</div><div class="c-val rred">7</div><div class="c-sub"><span class="up">3 Critical</span></div></div>
-      <div class="card card-top2a"><div class="c-lbl">In Investigation</div><div class="c-val ramber">12</div><div class="c-sub">Avg age: <span class="fm">4.2h</span></div></div>
-      <div class="card card-top2g"><div class="c-lbl">Resolved This Month</div><div class="c-val rgreen">284</div><div class="c-sub"><span class="dn">96.2%</span> resolution rate</div></div>
-      <div class="card card-top2"><div class="c-lbl">Avg MTTR</div><div class="c-val rcyan" style="font-size:24px;">48 min</div><div class="c-sub"><span class="dn">↓ −6 min</span> vs last month</div></div>
+  <section class="page" id="page-operations">
+    <div class="title-row"><h1 class="pg-title">02 · SOC Operations</h1><div class="period">Log · Alert · Ticket</div></div>
+    <div class="grid g5 mb">
+      <div class="card compact"><div class="metric-label">Raw Logs</div><div class="metric-value blue">38.6M</div><div class="metric-sub">Events / day</div></div>
+      <div class="card compact"><div class="metric-label">Alerts</div><div class="metric-value amber">1,847</div><div class="metric-sub">Today</div></div>
+      <div class="card compact"><div class="metric-label">Tickets</div><div class="metric-value cyan">167</div><div class="metric-sub">Open + closed</div></div>
+      <div class="card compact"><div class="metric-label">Queue Aging</div><div class="metric-value red">4.2h</div><div class="metric-sub">Avg open age</div></div>
+      <div class="card compact"><div class="metric-label">Analyst Load</div><div class="metric-value purple">6.2</div><div class="metric-sub">Cases / analyst</div></div>
     </div>
+    <div class="grid g3 mb"><div class="card span2"><div class="card-title">Log volume by source · 24 hours</div><div class="chart"><canvas id="opsLogTrend"></canvas></div></div><div class="card"><div class="card-title">Ticket queue state</div><div class="chart"><canvas id="opsTicketQueue"></canvas></div></div></div>
+    <div class="grid g2"><div class="card"><div class="card-title">Alert processing funnel</div><div class="chart"><canvas id="opsAlertFunnel"></canvas></div></div><div class="card"><div class="card-title">Live operation queue</div><table class="tbl"><thead><tr><th>ID</th><th>Source</th><th>Priority</th><th>Status</th><th>Owner</th></tr></thead><tbody><tr><td class="mono blue">ALT-9041</td><td>EDR</td><td><span class="tag red">P1</span></td><td>Investigating</td><td>Le</td></tr><tr><td class="mono blue">ALT-9038</td><td>Email</td><td><span class="tag amber">P2</span></td><td>Triage</td><td>Tran</td></tr><tr><td class="mono blue">TCK-2217</td><td>VPN</td><td><span class="tag amber">P2</span></td><td>Waiting</td><td>Hoang</td></tr><tr><td class="mono blue">INC-0847</td><td>EDR</td><td><span class="tag red">P1</span></td><td>Contained</td><td>Nguyen</td></tr><tr><td class="mono blue">ALT-9029</td><td>WAF</td><td><span class="tag blue">P3</span></td><td>Auto-block</td><td>SOAR</td></tr></tbody></table></div></div>
+  </section>
 
-    <div class="grid g3 mb14">
-      <!-- Trend line chart -->
-      <div class="card span2">
-        <div class="sec-title">Xu hướng sự cố — 30 ngày gần nhất</div>
-        <div class="ch" style="height:160px;"><canvas id="incTrend"></canvas></div>
-      </div>
-      <!-- Severity donut -->
-      <div class="card">
-        <div class="sec-title">Phân bố theo mức độ</div>
-        <div class="ch" style="height:120px;"><canvas id="sevDonut"></canvas></div>
-        <div style="margin-top:8px;">
-          <div class="brow"><span class="blbl">Critical</span><div class="bbg"><div class="bbar" style="width:30%;background:var(--red);"></div></div><span class="bval rred">3</span></div>
-          <div class="brow"><span class="blbl">High</span><div class="bbg"><div class="bbar" style="width:40%;background:var(--amber);"></div></div><span class="bval ramber">4</span></div>
-          <div class="brow"><span class="blbl">Medium</span><div class="bbg"><div class="bbar" style="width:70%;background:var(--cyan);"></div></div><span class="bval rcyan">7</span></div>
-          <div class="brow"><span class="blbl">Low</span><div class="bbg"><div class="bbar" style="width:100%;background:var(--green);"></div></div><span class="bval rgreen">10</span></div>
-        </div>
-      </div>
-    </div>
+  <section class="page" id="page-incident">
+    <div class="title-row"><h1 class="pg-title">03 · Alert & Incident Analytics</h1><div class="period">Detection → Response</div></div>
+    <div class="grid g4 mb"><div class="card compact"><div class="metric-label">Open Incidents</div><div class="metric-value red">7</div><div class="metric-sub">P1: 3</div></div><div class="card compact"><div class="metric-label">Investigating</div><div class="metric-value amber">12</div><div class="metric-sub">Avg age 4.2h</div></div><div class="card compact"><div class="metric-label">Resolved Month</div><div class="metric-value green">284</div><div class="metric-sub">96.2% rate</div></div><div class="card compact"><div class="metric-label">Reopened</div><div class="metric-value purple">11</div><div class="metric-sub">3.8% month</div></div></div>
+    <div class="grid g3 mb"><div class="card span2"><div class="card-title">Incident trend · 30 days</div><div class="chart"><canvas id="incTrend"></canvas></div></div><div class="card"><div class="card-title">Severity distribution</div><div class="chart sm"><canvas id="incSeverity"></canvas></div></div></div>
+    <div class="grid g2"><div class="card"><div class="card-title">MTTD / MTTR by severity</div><div class="chart"><canvas id="incResponseTime"></canvas></div></div><div class="card"><div class="card-title">Open incident register</div><table class="tbl"><thead><tr><th>ID</th><th>Title</th><th>Sev</th><th>Status</th><th>Asset</th></tr></thead><tbody><tr><td class="mono blue">INC-0847</td><td>Ransomware attempt</td><td><span class="tag red">Critical</span></td><td>Contained</td><td>FS-SHARE-04</td></tr><tr><td class="mono blue">INC-0846</td><td>C2 callback</td><td><span class="tag red">Critical</span></td><td>Investigating</td><td>WS-0312</td></tr><tr><td class="mono blue">INC-0844</td><td>Impossible travel</td><td><span class="tag red">Critical</span></td><td>Investigating</td><td>M365</td></tr><tr><td class="mono blue">INC-0841</td><td>Phishing campaign</td><td><span class="tag amber">High</span></td><td>Triage</td><td>Exchange</td></tr><tr><td class="mono blue">INC-0839</td><td>SQL injection</td><td><span class="tag amber">High</span></td><td>Auto-block</td><td>WAF</td></tr></tbody></table></div></div>
+  </section>
 
-    <!-- SLA + MTTR distribution -->
-    <div class="grid g2 mb14">
-      <div class="card">
-        <div class="sec-title">SLA Performance</div>
-        <div class="ch" style="height:150px;"><canvas id="slaBar"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="sec-title">Phân phối thời gian xử lý (MTTR)</div>
-        <div class="ch" style="height:150px;"><canvas id="mttrBar"></canvas></div>
-      </div>
-    </div>
+  <section class="page" id="page-detection">
+    <div class="title-row"><h1 class="pg-title">04 · Detection & Anomaly</h1><div class="period">Spike · Baseline · Entity</div></div>
+    <div class="grid g4 mb"><div class="card compact"><div class="metric-label">Anomalies</div><div class="metric-value amber">43</div><div class="metric-sub">Today</div></div><div class="card compact"><div class="metric-label">Spike Events</div><div class="metric-value red">11</div><div class="metric-sub">Above baseline</div></div><div class="card compact"><div class="metric-label">Rules Active</div><div class="metric-value blue">612</div><div class="metric-sub">Detection logic</div></div><div class="card compact"><div class="metric-label">MITRE Coverage</div><div class="metric-value green">74%</div><div class="metric-sub">Detected</div></div></div>
+    <div class="grid g3 mb"><div class="card span2"><div class="card-title">Observed events vs baseline</div><div class="chart"><canvas id="detBaseline"></canvas></div></div><div class="card"><div class="card-title">Spike by service</div><div class="chart"><canvas id="detServiceSpikes"></canvas></div></div></div>
+    <div class="grid g3"><div class="card"><div class="card-title">Anomaly score by entity</div><div class="chart"><canvas id="detEntities"></canvas></div></div><div class="card"><div class="card-title">Detection coverage</div><div class="chart"><canvas id="detMitre"></canvas></div></div><div class="card"><div class="card-title">Detection status</div><table class="tbl"><thead><tr><th>Use case</th><th>Status</th><th>FPR</th></tr></thead><tbody><tr><td>Impossible travel</td><td><span class="tag green">Active</span></td><td class="mono green">8%</td></tr><tr><td>VPN brute force</td><td><span class="tag amber">Tuning</span></td><td class="mono red">41%</td></tr><tr><td>EDR malware</td><td><span class="tag green">Active</span></td><td class="mono amber">18%</td></tr><tr><td>Cloud IAM abuse</td><td><span class="tag green">Active</span></td><td class="mono green">13%</td></tr><tr><td>DLP exfil</td><td><span class="tag blue">Pilot</span></td><td class="mono amber">22%</td></tr></tbody></table></div></div>
+  </section>
 
-    <!-- Incident list -->
-    <div class="card">
-      <div class="sec-title">Danh sách sự cố đang mở</div>
-      <table class="tbl">
-        <thead><tr><th>ID</th><th>Tiêu đề</th><th>Mức độ</th><th>Trạng thái</th><th>Loại</th><th>Hệ thống</th><th>Phát hiện</th><th>Analyst</th></tr></thead>
-        <tbody>
-          <tr><td class="fm rcyan" style="font-size:10.5px;">INC-0847</td><td>Ransomware attempt — Finance Segment</td><td><span class="tag tc">Critical</span></td><td><span class="tag to">Open</span></td><td class="tc2">Malware</td><td class="fm" style="font-size:10.5px;">FS-SHARE-04</td><td class="fm tc3" style="font-size:10.5px;">08:31</td><td class="tc2">Nguyen T.H</td></tr>
-          <tr><td class="fm rcyan" style="font-size:10.5px;">INC-0846</td><td>C2 callback từ workstation nội bộ</td><td><span class="tag tc">Critical</span></td><td><span class="tag ti">Investigating</span></td><td class="tc2">C2 / Beacon</td><td class="fm" style="font-size:10.5px;">WS-0312</td><td class="fm tc3" style="font-size:10.5px;">05:44</td><td class="tc2">Le V.T</td></tr>
-          <tr><td class="fm rcyan" style="font-size:10.5px;">INC-0844</td><td>Compromised account VP Sales — impossible travel</td><td><span class="tag tc">Critical</span></td><td><span class="tag ti">Investigating</span></td><td class="tc2">Account Takeover</td><td class="fm" style="font-size:10.5px;">M365 / AD</td><td class="fm tc3" style="font-size:10.5px;">07:12</td><td class="tc2">Pham A.K</td></tr>
-          <tr><td class="fm rcyan" style="font-size:10.5px;">INC-0841</td><td>Phishing campaign nhắm HR department</td><td><span class="tag th">High</span></td><td><span class="tag ti">Investigating</span></td><td class="tc2">Phishing</td><td class="fm" style="font-size:10.5px;">Exchange</td><td class="fm tc3" style="font-size:10.5px;">06:02</td><td class="tc2">Tran M.L</td></tr>
-          <tr><td class="fm rcyan" style="font-size:10.5px;">INC-0839</td><td>SQL injection vào web portal công khai</td><td><span class="tag th">High</span></td><td><span class="tag td">Contained</span></td><td class="tc2">Web Attack</td><td class="fm" style="font-size:10.5px;">WAF / Portal</td><td class="fm tc3" style="font-size:10.5px;">04:17</td><td class="tc2">Auto-block</td></tr>
-          <tr><td class="fm rcyan" style="font-size:10.5px;">INC-0831</td><td>Brute force SSH vào 3 server production</td><td><span class="tag th">High</span></td><td><span class="tag td">Contained</span></td><td class="tc2">Brute Force</td><td class="fm" style="font-size:10.5px;">PROD-01/02/03</td><td class="fm tc3" style="font-size:10.5px;">03:18</td><td class="tc2">Auto + Hoang</td></tr>
-          <tr><td class="fm rcyan" style="font-size:10.5px;">INC-0824</td><td>Privilege escalation — tài khoản contractor</td><td><span class="tag tm">Medium</span></td><td><span class="tag ti">Investigating</span></td><td class="tc2">Insider Risk</td><td class="fm" style="font-size:10.5px;">Linux / PAM</td><td class="fm tc3" style="font-size:10.5px;">01:55</td><td class="tc2">Nguyen T.H</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+  <section class="page" id="page-kpi">
+    <div class="title-row"><h1 class="pg-title">05 · KPI & SLA Center</h1><div class="period">MTTD · MTTR · SLA · FPR</div></div>
+    <div class="grid g5 mb"><div class="card compact"><div class="metric-label">MTTD</div><div class="metric-value green">14m</div><div class="metric-sub">Target ≤15m</div></div><div class="card compact"><div class="metric-label">MTTR</div><div class="metric-value green">48m</div><div class="metric-sub">Target ≤60m</div></div><div class="card compact"><div class="metric-label">SLA Met</div><div class="metric-value amber">94%</div><div class="metric-sub">Target 95%</div></div><div class="card compact"><div class="metric-label">False Positive</div><div class="metric-value red">22%</div><div class="metric-sub">Target ≤15%</div></div><div class="card compact"><div class="metric-label">Incident Volume</div><div class="metric-value blue">24</div><div class="metric-sub">Today</div></div></div>
+    <div class="grid g2 mb"><div class="card"><div class="card-title">MTTD / MTTR trend · 14 days</div><div class="chart"><canvas id="kpiTrend"></canvas></div></div><div class="card"><div class="card-title">SLA by severity</div><div class="chart"><canvas id="kpiSla"></canvas></div></div></div>
+    <div class="grid g2"><div class="card"><div class="card-title">False positive rate by rule</div><div class="chart"><canvas id="kpiFpr"></canvas></div></div><div class="card"><div class="card-title">Incident volume by type</div><div class="chart"><canvas id="kpiVolume"></canvas></div></div></div>
+  </section>
 
-  <!-- ══════ PAGE: THREAT ══════ -->
-  <div class="page" id="page-threat">
-    <div class="pg-title">Threat Analytics</div>
-    <div class="pg-sub">Phân tích mối đe dọa, nguồn tấn công & chiến thuật · Real-time</div>
+  <section class="page" id="page-pipeline">
+    <div class="title-row"><h1 class="pg-title">06 · Data Pipeline</h1><div class="period">ETL · Normalize · Quality</div></div>
+    <div class="grid g6 mb" style="grid-template-columns:repeat(6,1fr)"><div class="card compact"><div class="metric-label">Firewall</div><div class="metric-value blue">12.8M</div><div class="metric-sub">98.7% parse</div></div><div class="card compact"><div class="metric-label">EDR</div><div class="metric-value cyan">9.4M</div><div class="metric-sub">97.9% parse</div></div><div class="card compact"><div class="metric-label">VPN</div><div class="metric-value amber">1.1M</div><div class="metric-sub">91.2% parse</div></div><div class="card compact"><div class="metric-label">AD</div><div class="metric-value purple">4.7M</div><div class="metric-sub">96.4% parse</div></div><div class="card compact"><div class="metric-label">Email</div><div class="metric-value green">6.9M</div><div class="metric-sub">98.1% parse</div></div><div class="card compact"><div class="metric-label">Cloud</div><div class="metric-value red">3.7M</div><div class="metric-sub">86.5% parse</div></div></div>
+    <div class="grid g2 mb"><div class="card"><div class="card-title">Source volume & parse success</div><div class="chart"><canvas id="pipeSourceVolume"></canvas></div></div><div class="card"><div class="card-title">Data quality score</div><div class="chart"><canvas id="pipeDq"></canvas></div></div></div>
+    <div class="grid g2"><div class="card"><div class="card-title">Normalization matrix</div><table class="tbl"><thead><tr><th>Source</th><th>Schema</th><th>Timestamp</th><th>Identity</th><th>Asset</th></tr></thead><tbody><tr><td>Firewall</td><td><span class="tag green">OK</span></td><td><span class="tag green">OK</span></td><td><span class="tag blue">N/A</span></td><td><span class="tag green">OK</span></td></tr><tr><td>EDR</td><td><span class="tag green">OK</span></td><td><span class="tag green">OK</span></td><td><span class="tag green">OK</span></td><td><span class="tag green">OK</span></td></tr><tr><td>VPN</td><td><span class="tag amber">Fix</span></td><td><span class="tag green">OK</span></td><td><span class="tag green">OK</span></td><td><span class="tag amber">Fix</span></td></tr><tr><td>Cloud</td><td><span class="tag red">Gap</span></td><td><span class="tag amber">Fix</span></td><td><span class="tag green">OK</span></td><td><span class="tag amber">Fix</span></td></tr></tbody></table></div><div class="card"><div class="card-title">ETL freshness by source</div><div class="chart"><canvas id="pipeFreshness"></canvas></div></div></div>
+  </section>
 
-    <div class="grid g4 mb14">
-      <div class="card card-top2r"><div class="c-lbl">Unique Threat Actors</div><div class="c-val rred">18</div><div class="c-sub">Tháng này</div></div>
-      <div class="card card-top2a"><div class="c-lbl">Malicious IPs Blocked</div><div class="c-val ramber">4,821</div><div class="c-sub"><span class="up">↑ +340</span> hôm nay</div></div>
-      <div class="card card-top2"><div class="c-lbl">IOCs Detected</div><div class="c-val rcyan">237</div><div class="c-sub">Hashes, IPs, Domains</div></div>
-      <div class="card card-top2g"><div class="c-lbl">Threat Intel Feeds</div><div class="c-val rgreen">12</div><div class="c-sub">Active · Sync 3m ago</div></div>
-    </div>
+  <section class="page" id="page-ueba">
+    <div class="title-row"><h1 class="pg-title">07 · UBA / UEBA</h1><div class="period">User · Device · Behavior</div></div>
+    <div class="grid g4 mb"><div class="card compact"><div class="metric-label">High-risk Users</div><div class="metric-value red">8</div><div class="metric-sub">Score ≥80</div></div><div class="card compact"><div class="metric-label">Anomalies</div><div class="metric-value amber">43</div><div class="metric-sub">Today</div></div><div class="card compact"><div class="metric-label">Active Sessions</div><div class="metric-value blue">1,284</div><div class="metric-sub">Online</div></div><div class="card compact"><div class="metric-label">Privileged Events</div><div class="metric-value purple">92</div><div class="metric-sub">Admin actions</div></div></div>
+    <div class="grid g3 mb"><div class="card"><div class="card-title">Risk score distribution</div><div class="chart sm"><canvas id="uebaRiskDist"></canvas></div></div><div class="card"><div class="card-title">Anomaly type</div><div class="chart sm"><canvas id="uebaAnomalyType"></canvas></div></div><div class="card"><div class="card-title">Department risk</div><div class="chart sm"><canvas id="uebaDept"></canvas></div></div></div>
+    <div class="grid g2"><div class="card"><div class="card-title">Abnormal activity heatmap · 7 × 24</div><div class="heatmap"><div class="days"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div><div class="heat-cells" id="uebaHeat"></div></div></div><div class="card"><div class="card-title">High-risk users</div><table class="tbl"><thead><tr><th>User</th><th>Department</th><th>Score</th><th>Behavior</th><th>Status</th></tr></thead><tbody><tr><td>Nguyen V. An</td><td>Sales VP</td><td class="mono red">96</td><td><span class="tag red">Travel</span></td><td>Suspended</td></tr><tr><td>Tran T. Huong</td><td>Finance</td><td class="mono red">82</td><td><span class="tag amber">Download</span></td><td>Monitoring</td></tr><tr><td>Le M. Khoa</td><td>IT Contractor</td><td class="mono amber">77</td><td><span class="tag purple">Priv Esc</span></td><td>Monitoring</td></tr><tr><td>Pham Q. Duc</td><td>HR</td><td class="mono amber">58</td><td><span class="tag blue">After-hours</span></td><td>Review</td></tr></tbody></table></div></div>
+  </section>
 
-    <div class="grid g3 mb14">
-      <!-- Attack origin bar -->
-      <div class="card span2">
-        <div class="sec-title">Top quốc gia tấn công — 30 ngày (số lần tấn công)</div>
-        <div class="ch" style="height:170px;"><canvas id="geoBar"></canvas></div>
-      </div>
-      <!-- Attack vectors -->
-      <div class="card">
-        <div class="sec-title">Phương thức tấn công</div>
-        <div class="ch" style="height:130px;"><canvas id="vectorDonut"></canvas></div>
-        <div style="margin-top:8px;">
-          <div class="brow"><span class="blbl">Email/Phishing</span><div class="bbg"><div class="bbar" style="width:78%;background:var(--amber);"></div></div><span class="bval ramber">78%</span></div>
-          <div class="brow"><span class="blbl">Web Exploit</span><div class="bbg"><div class="bbar" style="width:45%;background:var(--cyan);"></div></div><span class="bval rcyan">45%</span></div>
-          <div class="brow"><span class="blbl">Credential</span><div class="bbg"><div class="bbar" style="width:38%;background:var(--purple);"></div></div><span class="bval rpurp">38%</span></div>
-          <div class="brow"><span class="blbl">Supply Chain</span><div class="bbg"><div class="bbar" style="width:15%;background:var(--red);"></div></div><span class="bval rred">15%</span></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="grid g2 mb14">
-      <!-- MITRE ATT&CK coverage -->
-      <div class="card">
-        <div class="sec-title">MITRE ATT&CK — Kỹ thuật phát hiện</div>
-        <div class="ch" style="height:160px;"><canvas id="mitreBar"></canvas></div>
-      </div>
-      <!-- CVE list -->
-      <div class="card">
-        <div class="sec-title">CVE & Lỗ hổng đang theo dõi</div>
-        <table class="tbl">
-          <thead><tr><th>CVE ID</th><th>CVSS</th><th>Mức độ</th><th>Trạng thái</th><th>Deadline</th></tr></thead>
-          <tbody>
-            <tr><td class="fm rcyan" style="font-size:10.5px;">CVE-2026-0412</td><td class="fm rred">9.8</td><td><span class="tag tc">Critical</span></td><td><span class="tag td">Patched</span></td><td class="fm tc3" style="font-size:10.5px;">30 Jun</td></tr>
-            <tr><td class="fm rcyan" style="font-size:10.5px;">CVE-2026-1187</td><td class="fm rred">9.0</td><td><span class="tag tc">Critical</span></td><td><span class="tag to">Open</span></td><td class="fm rred" style="font-size:10.5px;">TODAY</td></tr>
-            <tr><td class="fm rcyan" style="font-size:10.5px;">CVE-2026-0918</td><td class="fm ramber">8.1</td><td><span class="tag th">High</span></td><td><span class="tag ti">In Progress</span></td><td class="fm tc3" style="font-size:10.5px;">02 Jul</td></tr>
-            <tr><td class="fm rcyan" style="font-size:10.5px;">CVE-2025-4821</td><td class="fm ramber">7.5</td><td><span class="tag th">High</span></td><td><span class="tag td">Patched</span></td><td class="fm tc3" style="font-size:10.5px;">28 Jun</td></tr>
-            <tr><td class="fm rcyan" style="font-size:10.5px;">CVE-2025-3302</td><td class="fm rcyan">6.8</td><td><span class="tag tm">Medium</span></td><td><span class="tag ti">In Progress</span></td><td class="fm tc3" style="font-size:10.5px;">05 Jul</td></tr>
-          </tbody>
-        </table>
-        <div class="sec-title" style="margin-top:14px;">MITRE Coverage tổng thể</div>
-        <div class="brow"><span class="blbl">Detected</span><div class="bbg" style="flex:3;"><div class="bbar" style="width:74%;background:var(--green);"></div></div><span class="bval rgreen">74%</span></div>
-        <div class="brow"><span class="blbl">Partial</span><div class="bbg" style="flex:3;"><div class="bbar" style="width:18%;background:var(--amber);"></div></div><span class="bval ramber">18%</span></div>
-        <div class="brow"><span class="blbl">Gap</span><div class="bbg" style="flex:3;"><div class="bbar" style="width:8%;background:var(--red);"></div></div><span class="bval rred">8%</span></div>
-      </div>
-    </div>
-
-    <!-- Top Bad Hosting - like Viettel SOC -->
-    <div class="grid g2">
-      <div class="card">
-        <div class="sec-title">Top Bad Hosting Providers</div>
-        <table class="tbl">
-          <thead><tr><th>#</th><th>Provider</th><th>Malicious IPs</th><th>Trend</th></tr></thead>
-          <tbody>
-            <tr><td class="fm tc3">1</td><td>Amazon AWS Inc</td><td class="fm rred">1,721</td><td class="up">↑ +8%</td></tr>
-            <tr><td class="fm tc3">2</td><td>Cloudflare Inc</td><td class="fm rred">324</td><td class="up">↑ +3%</td></tr>
-            <tr><td class="fm tc3">3</td><td>GoDaddy.com LLC</td><td class="fm ramber">218</td><td class="eq">—</td></tr>
-            <tr><td class="fm tc3">4</td><td>Namecheap Inc</td><td class="fm ramber">136</td><td class="dn">↓ −2%</td></tr>
-            <tr><td class="fm tc3">5</td><td>OVH SAS</td><td class="fm rcyan">105</td><td class="dn">↓ −5%</td></tr>
-            <tr><td class="fm tc3">6</td><td>SoftLayer Technologies</td><td class="fm rcyan">83</td><td class="up">↑ +1%</td></tr>
-            <tr><td class="fm tc3">7</td><td>1&1 Internet SE</td><td class="fm rcyan">63</td><td class="eq">—</td></tr>
-            <tr><td class="fm tc3">8</td><td>CyrusOne LLC</td><td class="fm rgreen">41</td><td class="dn">↓ −9%</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="card">
-        <div class="sec-title">Live Threat Feed</div>
-        <div id="live-feed"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════ PAGE: UBA ══════ -->
-  <div class="page" id="page-uba">
-    <div class="pg-title">User Behavior Analytics</div>
-    <div class="pg-sub">Phân tích hành vi người dùng bất thường · Insider threat detection · AI-powered</div>
-
-    <div class="grid g4 mb14">
-      <div class="card card-top2r"><div class="c-lbl">High-Risk Users</div><div class="c-val rred">8</div><div class="c-sub">Vượt ngưỡng risk score</div></div>
-      <div class="card card-top2a"><div class="c-lbl">Anomalies Detected</div><div class="c-val ramber">43</div><div class="c-sub">Hôm nay · AI flagged</div></div>
-      <div class="card card-top2"><div class="c-lbl">Active Sessions</div><div class="c-val rcyan">1,284</div><div class="c-sub">Tài khoản đang online</div></div>
-      <div class="card card-top2p"><div class="c-lbl">Privilege Access Events</div><div class="c-val rpurp">92</div><div class="c-sub">Admin actions hôm nay</div></div>
-    </div>
-
-    <div class="grid g3 mb14">
-      <!-- Risk score distribution -->
-      <div class="card">
-        <div class="sec-title">Phân bố Risk Score người dùng</div>
-        <div class="ch" style="height:150px;"><canvas id="riskDist"></canvas></div>
-      </div>
-      <!-- Anomaly types -->
-      <div class="card">
-        <div class="sec-title">Loại hành vi bất thường</div>
-        <div class="ch" style="height:150px;"><canvas id="anomalyBar"></canvas></div>
-      </div>
-      <!-- Dept risk -->
-      <div class="card">
-        <div class="sec-title">Rủi ro theo phòng ban</div>
-        <div class="ch" style="height:150px;"><canvas id="deptBar"></canvas></div>
-      </div>
-    </div>
-
-    <div class="grid g2 mb14">
-      <!-- Activity heatmap -->
-      <div class="card">
-        <div class="sec-title">Hoạt động bất thường — 7 ngày × 24 giờ</div>
-        <div style="display:flex;gap:5px;">
-          <div style="display:flex;flex-direction:column;justify-content:space-around;font-size:9px;font-family:var(--mono);color:var(--t3);width:26px;flex-shrink:0;padding:2px 0;">
-            <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
-          </div>
-          <div id="uba-heatmap" style="flex:1;"></div>
-        </div>
-        <div style="display:flex;gap:6px;margin-top:7px;font-size:9.5px;color:var(--t3);">
-          <span>Bình thường</span>
-          <div style="display:flex;gap:2px;">
-            <div style="width:11px;height:11px;border-radius:2px;background:rgba(0,229,160,.12)"></div>
-            <div style="width:11px;height:11px;border-radius:2px;background:rgba(255,180,0,.22)"></div>
-            <div style="width:11px;height:11px;border-radius:2px;background:rgba(255,61,90,.38)"></div>
-            <div style="width:11px;height:11px;border-radius:2px;background:rgba(255,61,90,.75)"></div>
-          </div>
-          <span>Bất thường cao</span>
-        </div>
-      </div>
-      <!-- High risk users -->
-      <div class="card">
-        <div class="sec-title">Người dùng rủi ro cao</div>
-        <table class="tbl">
-          <thead><tr><th>Người dùng</th><th>Phòng ban</th><th>Score</th><th>Hành vi</th><th>Status</th></tr></thead>
-          <tbody>
-            <tr><td><div style="font-size:12px;font-weight:600;">Nguyen V. An</div><div class="fm" style="font-size:9.5px;color:var(--t3);">nvan@corp.vn</div></td><td class="tc2">Sales VP</td><td><span class="rs rsh">96</span></td><td><span class="tag tc" style="font-size:9.5px;">Impossible Travel</span></td><td><span class="tag to">Suspended</span></td></tr>
-            <tr><td><div style="font-size:12px;font-weight:600;">Tran T. Huong</div><div class="fm" style="font-size:9.5px;color:var(--t3);">tthuong@corp.vn</div></td><td class="tc2">Finance</td><td><span class="rs rsh">82</span></td><td><span class="tag th" style="font-size:9.5px;">Mass Download</span></td><td><span class="tag ti">Monitoring</span></td></tr>
-            <tr><td><div style="font-size:12px;font-weight:600;">Le M. Khoa</div><div class="fm" style="font-size:9.5px;color:var(--t3);">lmkhoa@corp.vn</div></td><td class="tc2">IT Contractor</td><td><span class="rs rsh">77</span></td><td><span class="tag th" style="font-size:9.5px;">Priv Escalation</span></td><td><span class="tag ti">Monitoring</span></td></tr>
-            <tr><td><div style="font-size:12px;font-weight:600;">Pham Q. Duc</div><div class="fm" style="font-size:9.5px;color:var(--t3);">pqduc@corp.vn</div></td><td class="tc2">HR</td><td><span class="rs rsm">58</span></td><td><span class="tag tm" style="font-size:9.5px;">After-hours</span></td><td><span class="tag ti">Review</span></td></tr>
-            <tr><td><div style="font-size:12px;font-weight:600;">Do T. Lan</div><div class="fm" style="font-size:9.5px;color:var(--t3);">dtlan@corp.vn</div></td><td class="tc2">Legal</td><td><span class="rs rsm">51</span></td><td><span class="tag tm" style="font-size:9.5px;">Unusual Access</span></td><td><span class="tag td">Cleared</span></td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- ══════ PAGE: OPS DATA ══════ -->
-  <div class="page" id="page-ops">
-    <div class="pg-title">Phân tích dữ liệu vận hành SOC</div>
-    <div class="pg-sub">Log · Alert · Incident · Ticket · Real-time Operations</div>
-
-    <div class="grid g4 mb14">
-      <div class="card card-top2"><div class="c-lbl">Logs Ingested Today</div><div class="c-val rcyan">38.6M</div><div class="c-sub">Firewall, EDR, VPN, AD, Email, Cloud</div></div>
-      <div class="card card-top2a"><div class="c-lbl">Alerts Correlated</div><div class="c-val ramber">1,847</div><div class="c-sub"><span class="up">↑ +12%</span> vs weekly baseline</div></div>
-      <div class="card card-top2r"><div class="c-lbl">Incidents Created</div><div class="c-val rred">24</div><div class="c-sub">7 still open · 3 critical</div></div>
-      <div class="card card-top2g"><div class="c-lbl">Tickets Closed</div><div class="c-val rgreen">71</div><div class="c-sub">Backlog reduced by 9%</div></div>
-    </div>
-
-    <div class="grid g3 mb14">
-      <div class="card span2">
-        <div class="sec-title">Khối lượng log theo nguồn — 24 giờ</div>
-        <div class="ch" style="height:185px;"><canvas id="opsLogTrend"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="sec-title">Alert → Incident Funnel</div>
-        <div class="ch" style="height:185px;"><canvas id="alertFunnel"></canvas></div>
-      </div>
-    </div>
-
-    <div class="grid g2 mb14">
-      <div class="card">
-        <div class="sec-title">Nguồn dữ liệu đang ingest</div>
-        <table class="tbl">
-          <thead><tr><th>Source</th><th>Volume</th><th>Delay</th><th>Quality</th><th>Status</th></tr></thead>
-          <tbody>
-            <tr><td>Firewall</td><td class="fm rcyan">12.8M</td><td class="fm tc2">18s</td><td><span class="tag tl">98.7%</span></td><td><span class="status-dot status-ok"></span>Healthy</td></tr>
-            <tr><td>EDR</td><td class="fm rcyan">9.4M</td><td class="fm tc2">31s</td><td><span class="tag tl">97.9%</span></td><td><span class="status-dot status-ok"></span>Healthy</td></tr>
-            <tr><td>VPN</td><td class="fm rcyan">1.1M</td><td class="fm ramber">2m</td><td><span class="tag th">91.2%</span></td><td><span class="status-dot status-warn"></span>Lagging</td></tr>
-            <tr><td>Active Directory</td><td class="fm rcyan">4.7M</td><td class="fm tc2">44s</td><td><span class="tag tl">96.4%</span></td><td><span class="status-dot status-ok"></span>Healthy</td></tr>
-            <tr><td>Email Gateway</td><td class="fm rcyan">6.9M</td><td class="fm tc2">26s</td><td><span class="tag tl">98.1%</span></td><td><span class="status-dot status-ok"></span>Healthy</td></tr>
-            <tr><td>Cloud Audit</td><td class="fm rcyan">3.7M</td><td class="fm rred">8m</td><td><span class="tag ti">86.5%</span></td><td><span class="status-dot status-bad"></span>Schema drift</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="card">
-        <div class="sec-title">Queue vận hành theo trạng thái ticket</div>
-        <div class="ch" style="height:165px;"><canvas id="ticketQueue"></canvas></div>
-        <div class="rulebox" style="margin-top:10px;"><b>Cách dùng:</b> Analyst có thể ưu tiên xử lý theo severity, tuổi ticket, SLA còn lại và hệ thống bị ảnh hưởng. Các ticket quá SLA hoặc có risk score cao được đưa lên hàng đầu.</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="sec-title">Bảng vận hành real-time — sự kiện cần chú ý</div>
-      <table class="tbl">
-        <thead><tr><th>Time</th><th>Type</th><th>Entity</th><th>Signal</th><th>Severity</th><th>Owner</th><th>Next Action</th></tr></thead>
-        <tbody>
-          <tr><td class="fm tc3">08:51</td><td>Alert</td><td class="fm">WS-0312</td><td>C2 beacon repeated 6 times</td><td><span class="tag tc">Critical</span></td><td>Tier 2</td><td>Isolate host + memory capture</td></tr>
-          <tr><td class="fm tc3">08:47</td><td>Ticket</td><td class="fm">VPN-GW-02</td><td>Auth failures spike 4.8× baseline</td><td><span class="tag th">High</span></td><td>Tier 1</td><td>Block top IPs + verify MFA</td></tr>
-          <tr><td class="fm tc3">08:43</td><td>Incident</td><td class="fm">M365 / VP Sales</td><td>Impossible travel confirmed</td><td><span class="tag tc">Critical</span></td><td>IR Lead</td><td>Force reset + revoke tokens</td></tr>
-          <tr><td class="fm tc3">08:40</td><td>Log Gap</td><td class="fm">CloudTrail</td><td>Missing region ap-southeast-1</td><td><span class="tag ti">Medium</span></td><td>Data Eng</td><td>Fix parser + backfill</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- ══════ PAGE: ANOMALY DETECTION ══════ -->
-  <div class="page" id="page-anomaly">
-    <div class="pg-title">Phát hiện bất thường</div>
-    <div class="pg-sub">Spike detection · User/device/service anomaly · Baseline deviation</div>
-
-    <div class="grid g4 mb14">
-      <div class="card card-top2r"><div class="c-lbl">Critical Anomalies</div><div class="c-val rred">11</div><div class="c-sub">3 user · 5 device · 3 service</div></div>
-      <div class="card card-top2a"><div class="c-lbl">Alert Spike</div><div class="c-val ramber">4.8×</div><div class="c-sub">VPN auth failures vs baseline</div></div>
-      <div class="card card-top2p"><div class="c-lbl">UEBA High Score</div><div class="c-val rpurp">96</div><div class="c-sub">Nguyen V. An · impossible travel</div></div>
-      <div class="card card-top2g"><div class="c-lbl">Auto Closed Noise</div><div class="c-val rgreen">612</div><div class="c-sub">Dedup + suppression rules</div></div>
-    </div>
-
-    <div class="grid g2 mb14">
-      <div class="card">
-        <div class="sec-title">Baseline vs thực tế — alert/hour</div>
-        <div class="ch" style="height:185px;"><canvas id="baselineBand"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="sec-title">Anomaly score theo entity</div>
-        <div class="ch" style="height:185px;"><canvas id="anomalyEntities"></canvas></div>
-      </div>
-    </div>
-
-    <div class="grid g3 mb14">
-      <div class="card">
-        <div class="sec-title">Spike rules đang áp dụng</div>
-        <div class="rulebox"><b>Z-score:</b> cảnh báo khi current_count &gt; mean_30d + 3 × stddev_30d.<br><b>Ratio:</b> cảnh báo khi current_count / baseline &gt;= 3.<br><b>Recency:</b> ưu tiên event xảy ra trong 15 phút gần nhất.</div>
-      </div>
-      <div class="card">
-        <div class="sec-title">Service bất thường</div>
-        <div class="ch" style="height:145px;"><canvas id="serviceSpikes"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="sec-title">Điểm rủi ro tổng hợp</div>
-        <div class="ch" style="height:145px;"><canvas id="anomalyScoreMix"></canvas></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="sec-title">Top bất thường cần điều tra</div>
-      <table class="tbl">
-        <thead><tr><th>Entity</th><th>Loại</th><th>Score</th><th>Baseline</th><th>Observed</th><th>Giải thích</th><th>Khuyến nghị</th></tr></thead>
-        <tbody>
-          <tr><td class="fm rcyan">nvan@corp.vn</td><td>User</td><td><span class="rs rsh">96</span></td><td>1 country/day</td><td>VN → SG 4 phút</td><td>Impossible travel + new device</td><td>Revoke session, MFA reset</td></tr>
-          <tr><td class="fm rcyan">VPN-GW-02</td><td>Service</td><td><span class="rs rsh">91</span></td><td>180 failures/hr</td><td>864 failures/hr</td><td>Auth failures spike 4.8×</td><td>Rate limit + block IPs</td></tr>
-          <tr><td class="fm rcyan">WS-0312</td><td>Device</td><td><span class="rs rsh">88</span></td><td>0 external beacons</td><td>6 C2 callbacks</td><td>Known IOC + periodicity</td><td>Isolate endpoint</td></tr>
-          <tr><td class="fm rcyan">CloudTrail</td><td>Data Pipeline</td><td><span class="rs rsm">64</span></td><td>99% parse success</td><td>86.5%</td><td>Schema drift region field</td><td>Fix parser + replay logs</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- ══════ PAGE: KPI CENTER ══════ -->
-  <div class="page" id="page-kpi">
-    <div class="pg-title">KPI & SLA Center</div>
-    <div class="pg-sub">MTTD · MTTR · SLA · False Positive Rate · Incident Volume · Executive dashboard</div>
-
-    <div class="grid g4 mb14">
-      <div class="card card-top2"><div class="c-lbl">MTTD</div><div class="c-val rcyan" style="font-size:24px;">14 min</div><div class="c-sub"><span class="dn">↓ 3 min</span> vs last week</div><div class="kpi-formula">AVG(detected_at − occurred_at)</div></div>
-      <div class="card card-top2g"><div class="c-lbl">MTTR</div><div class="c-val rgreen" style="font-size:24px;">48 min</div><div class="c-sub"><span class="dn">↓ 6 min</span> vs last month</div><div class="kpi-formula">AVG(resolved_at − detected_at)</div></div>
-      <div class="card card-top2a"><div class="c-lbl">SLA Compliance</div><div class="c-val ramber">94.6%</div><div class="c-sub">Critical SLA miss: 2</div><div class="kpi-formula">within_sla / total_incidents</div></div>
-      <div class="card card-top2r"><div class="c-lbl">False Positive Rate</div><div class="c-val rred">22.4%</div><div class="c-sub"><span class="up">↑ 2.1%</span> cần tuning</div><div class="kpi-formula">false_positive_alerts / total_alerts</div></div>
-    </div>
-
-    <div class="grid g3 mb14">
-      <div class="card span2">
-        <div class="sec-title">MTTD / MTTR trend — 14 ngày</div>
-        <div class="ch" style="height:185px;"><canvas id="kpiTrend"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="sec-title">Executive summary</div>
-        <div class="exec-note">
-          <b style="color:var(--t1);">Tình hình:</b> rủi ro đang ở mức Elevated do tăng brute-force VPN và 3 incident critical.<br><br>
-          <b style="color:var(--t1);">Điểm tích cực:</b> containment rate 94.2%, MTTR giảm 6 phút.<br><br>
-          <b style="color:var(--t1);">Cần quyết định:</b> ưu tiên tuning rule VPN + tăng automation cho phishing triage.
-        </div>
-      </div>
-    </div>
-
-    <div class="grid g3 mb14">
-      <div class="card">
-        <div class="sec-title">SLA theo mức độ</div>
-        <div class="ch" style="height:165px;"><canvas id="slaBySeverity"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="sec-title">False Positive Rate theo use case</div>
-        <div class="ch" style="height:165px;"><canvas id="fpRateTrend"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="sec-title">Incident Volume theo loại</div>
-        <div class="ch" style="height:165px;"><canvas id="incidentVolumeType"></canvas></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="sec-title">KPI vận hành cho SOC Lead</div>
-      <table class="tbl">
-        <thead><tr><th>KPI</th><th>Định nghĩa</th><th>Current</th><th>Target</th><th>Status</th><th>Hành động</th></tr></thead>
-        <tbody>
-          <tr><td>MTTD</td><td>Thời gian trung bình từ xảy ra tới phát hiện</td><td class="fm rcyan">14m</td><td class="fm">≤15m</td><td><span class="tag tl">Met</span></td><td>Duy trì detection coverage</td></tr>
-          <tr><td>MTTR</td><td>Thời gian trung bình từ phát hiện tới xử lý xong</td><td class="fm rgreen">48m</td><td class="fm">≤60m</td><td><span class="tag tl">Met</span></td><td>Chuẩn hóa playbook critical</td></tr>
-          <tr><td>SLA</td><td>% incident xử lý trong cam kết</td><td class="fm ramber">94.6%</td><td class="fm">≥95%</td><td><span class="tag th">At Risk</span></td><td>Escalate tickets &gt; 75% SLA age</td></tr>
-          <tr><td>FPR</td><td>% alert đóng là false positive</td><td class="fm rred">22.4%</td><td class="fm">≤15%</td><td><span class="tag tc">Miss</span></td><td>Tune noisy VPN/EDR rules</td></tr>
-          <tr><td>Incident Volume</td><td>Số incident tạo mới theo ngày/tuần/tháng</td><td class="fm rcyan">24/day</td><td class="fm">Monitor</td><td><span class="tag tm">Watch</span></td><td>So sánh theo baseline 30 ngày</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- ══════ PAGE: ETL ══════ -->
-  <div class="page" id="page-etl">
-    <div class="pg-title">ETL & Chuẩn hóa dữ liệu SOC</div>
-    <div class="pg-sub">Firewall · EDR · VPN · AD · Email · Cloud → Normalized security event model</div>
-
-    <div class="grid g4 mb14">
-      <div class="card card-top2"><div class="c-lbl">Sources Connected</div><div class="c-val rcyan">6/6</div><div class="c-sub">Firewall, EDR, VPN, AD, Email, Cloud</div></div>
-      <div class="card card-top2g"><div class="c-lbl">Parse Success</div><div class="c-val rgreen">96.9%</div><div class="c-sub">Weighted by source volume</div></div>
-      <div class="card card-top2a"><div class="c-lbl">Schema Drift</div><div class="c-val ramber">2</div><div class="c-sub">CloudTrail region, EDR process_hash</div></div>
-      <div class="card card-top2r"><div class="c-lbl">Missing Fields</div><div class="c-val rred">3.1%</div><div class="c-sub">Mostly user_id / src_ip</div></div>
-    </div>
-
-    <div class="card mb14">
-      <div class="sec-title">Pipeline ETL đề xuất</div>
-      <div class="pipeline">
-        <div class="pipe-step"><div class="pipe-title">1. Ingest</div><div class="pipe-meta">SIEM / PubSub / API / Syslog<br>Near real-time</div></div>
-        <div class="pipe-step"><div class="pipe-title">2. Raw Zone</div><div class="pipe-meta">Append-only raw_events<br>Partition by event_date</div></div>
-        <div class="pipe-step"><div class="pipe-title">3. Parse</div><div class="pipe-meta">JSON / Regex / CEF / LEEF<br>Extract fields</div></div>
-        <div class="pipe-step"><div class="pipe-title">4. Normalize</div><div class="pipe-meta">event_type, user_id, asset_id<br>severity, src/dst</div></div>
-        <div class="pipe-step"><div class="pipe-title">5. Enrich</div><div class="pipe-meta">GeoIP, CMDB, IAM, TI<br>business criticality</div></div>
-        <div class="pipe-step"><div class="pipe-title">6. Analytics Mart</div><div class="pipe-meta">alerts, incidents, tickets<br>KPI, UBA, anomaly</div></div>
-      </div>
-    </div>
-
-    <div class="grid g3 mb14">
-      <div class="card span2">
-        <div class="sec-title">Volume & parse success theo nguồn</div>
-        <div class="ch" style="height:190px;"><canvas id="etlSourceVolume"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="sec-title">Data quality dimensions</div>
-        <div class="ch" style="height:190px;"><canvas id="dqScore"></canvas></div>
-      </div>
-    </div>
-
-    <div class="grid g2 mb14">
-      <div class="card">
-        <div class="sec-title">Normalized schema mẫu</div>
-        <table class="tbl">
-          <thead><tr><th>Field</th><th>Kiểu</th><th>Mô tả</th></tr></thead>
-          <tbody>
-            <tr><td class="fm rcyan">event_id</td><td>STRING</td><td>ID duy nhất sau dedup</td></tr>
-            <tr><td class="fm rcyan">event_time</td><td>TIMESTAMP</td><td>Thời điểm event gốc</td></tr>
-            <tr><td class="fm rcyan">source_type</td><td>STRING</td><td>Firewall / EDR / VPN / AD / Email / Cloud</td></tr>
-            <tr><td class="fm rcyan">event_type</td><td>STRING</td><td>login_failed, malware_detected, email_clicked...</td></tr>
-            <tr><td class="fm rcyan">user_id</td><td>STRING</td><td>Mapping email / UPN / username</td></tr>
-            <tr><td class="fm rcyan">asset_id</td><td>STRING</td><td>Hostname / device_id / cloud resource</td></tr>
-            <tr><td class="fm rcyan">src_ip / dst_ip</td><td>STRING</td><td>Nguồn/đích network</td></tr>
-            <tr><td class="fm rcyan">severity</td><td>STRING</td><td>Critical, High, Medium, Low</td></tr>
-            <tr><td class="fm rcyan">normalized_status</td><td>STRING</td><td>parsed, enriched, failed, quarantined</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="card">
-        <div class="sec-title">Rule kiểm soát chất lượng dữ liệu</div>
-        <div class="rulebox">
-          <b>Completeness:</b> event_time, source_type, event_type không được NULL.<br>
-          <b>Uniqueness:</b> event_id không trùng trong partition hiện tại.<br>
-          <b>Timeliness:</b> ingest_delay_seconds ≤ 300 cho nguồn real-time.<br>
-          <b>Validity:</b> severity thuộc tập Critical/High/Medium/Low.<br>
-          <b>Consistency:</b> user_id từ AD, VPN, Email phải map về cùng identity graph.
-        </div>
-        <div class="sec-title" style="margin-top:14px;">Data contract health</div>
-        <div class="brow"><span class="blbl">Completeness</span><div class="bbg"><div class="bbar" style="width:97%;background:var(--green);"></div></div><span class="bval rgreen">97%</span></div>
-        <div class="brow"><span class="blbl">Timeliness</span><div class="bbg"><div class="bbar" style="width:91%;background:var(--amber);"></div></div><span class="bval ramber">91%</span></div>
-        <div class="brow"><span class="blbl">Validity</span><div class="bbg"><div class="bbar" style="width:96%;background:var(--green);"></div></div><span class="bval rgreen">96%</span></div>
-        <div class="brow"><span class="blbl">Identity Match</span><div class="bbg"><div class="bbar" style="width:88%;background:var(--amber);"></div></div><span class="bval ramber">88%</span></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════ PAGE: PROCESS OPTIMIZATION ══════ -->
-  <div class="page" id="page-process">
-    <div class="pg-title">Tối ưu quy trình xử lý incident</div>
-    <div class="pg-sub">Bottleneck analysis · Playbook automation · Rule tuning · Analyst workload</div>
-
-    <div class="grid g4 mb14">
-      <div class="card card-top2r"><div class="c-lbl">Main Bottleneck</div><div class="c-val rred" style="font-size:22px;">Triage</div><div class="c-sub">36% total handling time</div></div>
-      <div class="card card-top2a"><div class="c-lbl">Queue Age P95</div><div class="c-val ramber" style="font-size:24px;">3.8h</div><div class="c-sub">High severity queue</div></div>
-      <div class="card card-top2g"><div class="c-lbl">Automation Candidates</div><div class="c-val rgreen">18</div><div class="c-sub">Estimated 42h/month saved</div></div>
-      <div class="card card-top2"><div class="c-lbl">Rule Tuning Impact</div><div class="c-val rcyan">−31%</div><div class="c-sub">Potential false positives reduction</div></div>
-    </div>
-
-    <div class="grid g3 mb14">
-      <div class="card span2">
-        <div class="sec-title">Thời gian xử lý theo stage</div>
-        <div class="ch" style="height:185px;"><canvas id="processBottleneck"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="sec-title">Automation ROI</div>
-        <div class="ch" style="height:185px;"><canvas id="automationROI"></canvas></div>
-      </div>
-    </div>
-
-    <div class="grid g2 mb14">
-      <div class="card">
-        <div class="sec-title">Workload theo analyst</div>
-        <div class="ch" style="height:170px;"><canvas id="analystLoad"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="sec-title">Khuyến nghị ưu tiên</div>
-        <div class="reco"><div class="reco-rank">01</div><div><div class="reco-title">Tự động enrich IOC và asset criticality</div><div class="reco-desc">Giảm thời gian triage malware/C2 từ 14 phút xuống còn khoảng 6 phút mỗi case.</div></div></div>
-        <div class="reco"><div class="reco-rank">02</div><div><div class="reco-title">Tune rule VPN brute force theo baseline từng gateway</div><div class="reco-desc">Giảm false positive, vẫn giữ cảnh báo khi z-score và geo-risk vượt ngưỡng.</div></div></div>
-        <div class="reco"><div class="reco-rank">03</div><div><div class="reco-title">Auto-close duplicated phishing alerts</div><div class="reco-desc">Gộp alert theo campaign_id, sender_domain, recipient cohort để giảm noise.</div></div></div>
-        <div class="reco"><div class="reco-rank">04</div><div><div class="reco-title">Escalation bot cho ticket sắp vi phạm SLA</div><div class="reco-desc">Đẩy thông báo khi SLA age vượt 75%, 90% và khi thiếu owner.</div></div></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="sec-title">Backlog & bottleneck detail</div>
-      <table class="tbl">
-        <thead><tr><th>Stage</th><th>Avg Time</th><th>P95</th><th>Backlog</th><th>Root Cause</th><th>Automation / Process Fix</th></tr></thead>
-        <tbody>
-          <tr><td>Triage</td><td class="fm rred">17m</td><td class="fm rred">46m</td><td class="fm ramber">41</td><td>Thiếu enrichment, nhiều alert trùng</td><td>IOC enrichment + dedup by campaign/entity</td></tr>
-          <tr><td>Investigation</td><td class="fm ramber">22m</td><td class="fm ramber">64m</td><td class="fm ramber">18</td><td>Chờ dữ liệu EDR/VPN</td><td>Pre-fetch logs + timeline builder</td></tr>
-          <tr><td>Escalation</td><td class="fm rcyan">8m</td><td class="fm ramber">28m</td><td class="fm rcyan">9</td><td>Không rõ owner hệ thống</td><td>CMDB owner mapping + escalation matrix</td></tr>
-          <tr><td>Containment</td><td class="fm rgreen">11m</td><td class="fm rcyan">24m</td><td class="fm rcyan">6</td><td>Manual approval</td><td>Pre-approved action cho high-confidence IOC</td></tr>
-          <tr><td>Closure</td><td class="fm rcyan">6m</td><td class="fm rcyan">16m</td><td class="fm rgreen">3</td><td>Thiếu template RCA</td><td>Auto-generate incident summary</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-
-</div><!-- end main -->
-
+  <section class="page" id="page-optimization">
+    <div class="title-row"><h1 class="pg-title">08 · Process Optimization</h1><div class="period">Bottleneck · Automation · Rule Tuning</div></div>
+    <div class="grid g4 mb"><div class="card compact"><div class="metric-label">Longest Stage</div><div class="metric-value amber">22m</div><div class="metric-sub">Investigation</div></div><div class="card compact"><div class="metric-label">Automation Candidates</div><div class="metric-value green">14</div><div class="metric-sub">Use cases</div></div><div class="card compact"><div class="metric-label">Hours Saved</div><div class="metric-value blue">42h</div><div class="metric-sub">Monthly</div></div><div class="card compact"><div class="metric-label">Rule Tuning</div><div class="metric-value red">5</div><div class="metric-sub">High FPR</div></div></div>
+    <div class="grid g3 mb"><div class="card"><div class="card-title">Process bottleneck</div><div class="chart"><canvas id="optBottleneck"></canvas></div></div><div class="card"><div class="card-title">Automation ROI</div><div class="chart"><canvas id="optAutomation"></canvas></div></div><div class="card"><div class="card-title">Analyst workload</div><div class="chart"><canvas id="optAnalyst"></canvas></div></div></div>
+    <div class="grid g2"><div class="card"><div class="card-title">Rule tuning backlog</div><table class="tbl"><thead><tr><th>Rule</th><th>Alerts</th><th>FPR</th><th>Action</th></tr></thead><tbody><tr><td>VPN brute force</td><td class="mono">412</td><td class="mono red">41%</td><td><span class="tag amber">Threshold</span></td></tr><tr><td>Phishing subject match</td><td class="mono">221</td><td class="mono amber">24%</td><td><span class="tag blue">Whitelist</span></td></tr><tr><td>DLP external share</td><td class="mono">86</td><td class="mono amber">22%</td><td><span class="tag purple">Context</span></td></tr><tr><td>EDR suspicious script</td><td class="mono">77</td><td class="mono amber">18%</td><td><span class="tag green">Correlate</span></td></tr></tbody></table></div><div class="card"><div class="card-title">Automation coverage by stage</div><div class="chart"><canvas id="optCoverage"></canvas></div></div></div>
+  </section>
+</main>
 <script>
-// ── Nav ──────────────────────────────────────────
-const pageLabels={overview:'Overview',incident:'Incident Analytics',threat:'Threat Analytics',uba:'User Behavior Analytics',ops:'Log / Alert / Ticket',anomaly:'Anomaly Detection',kpi:'KPI / SLA Center',etl:'ETL & Data Quality',process:'Process Optimization'};
-function showPage(id,el){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('page-'+id).classList.add('active');
-  el.classList.add('active');
-  document.getElementById('breadcrumb').innerHTML='Security Operations / <span>'+pageLabels[id]+'</span>';
-}
-
-// ── Clock ──────────────────────────────────────────
-function updateClock(){
-  const n=new Date(),days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  document.getElementById('live-time').textContent=`${days[n.getDay()]} ${n.getDate()} ${months[n.getMonth()]} ${n.getFullYear()} — ${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}:${String(n.getSeconds()).padStart(2,'0')} ICT`;
-}
-updateClock();setInterval(updateClock,1000);
-
-// ── Chart defaults ──────────────────────────────────
-Chart.defaults.color='#6FA8CC';
-Chart.defaults.font.family="'JetBrains Mono', monospace";
-Chart.defaults.font.size=10;
-
-const COLORS={cyan:'#00C8FF',red:'#FF3D5A',green:'#00E5A0',amber:'#FFB400',purple:'#B06AFF',orange:'#FF7040',pink:'#FF4FAD'};
-function rgba(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `rgba(${r},${g},${b},${a})`;}
-const gridColor='rgba(0,180,255,0.08)';
-const baseOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(5,13,31,.92)',borderColor:'rgba(0,180,255,.25)',borderWidth:1,titleColor:'#D8EFFF',bodyColor:'#6FA8CC',padding:10}}};
-
-// ── Alerts Bar (Overview) ──────────────────────────
-new Chart(document.getElementById('alertsBar'),{type:'bar',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[{label:'Critical',data:[2,1,3,2,4,1,3],backgroundColor:rgba(COLORS.red,.75),borderRadius:3,stack:'s'},{label:'High',data:[5,4,6,5,7,3,4],backgroundColor:rgba(COLORS.amber,.65),borderRadius:3,stack:'s'},{label:'Medium',data:[12,10,15,11,18,8,12],backgroundColor:rgba(COLORS.cyan,.45),borderRadius:3,stack:'s'},{label:'Low',data:[20,18,22,19,25,12,18],backgroundColor:rgba(COLORS.green,.3),borderRadius:3,stack:'s'}]},options:{...baseOpts,plugins:{...baseOpts.plugins,legend:{display:true,position:'top',labels:{color:'#6FA8CC',boxWidth:10,font:{size:10}}}},scales:{x:{grid:{color:gridColor},ticks:{color:'#6FA8CC'}},y:{grid:{color:gridColor},ticks:{color:'#6FA8CC'},stacked:true}}}});
-
-// ── Attack Donut (Overview) ──────────────────────────
-new Chart(document.getElementById('attackDonut'),{type:'doughnut',data:{labels:['Malware','Phishing','Brute Force','Insider'],datasets:[{data:[43,29,19,9],backgroundColor:[rgba(COLORS.red,.8),rgba(COLORS.amber,.8),rgba(COLORS.cyan,.8),rgba(COLORS.purple,.8)],borderColor:['#050D1F'],borderWidth:2,hoverOffset:6}]},options:{...baseOpts,cutout:'68%',plugins:{...baseOpts.plugins,legend:{display:false}}}});
-
-// ── Incident Trend (Incident) ──────────────────────────
-const incLabels=Array.from({length:30},(_,i)=>`${i+1}`);
-const incData=incLabels.map((_,i)=>Math.floor(8+Math.sin(i*.5)*4+Math.random()*6));
-new Chart(document.getElementById('incTrend'),{type:'line',data:{labels:incLabels,datasets:[{label:'Total Incidents',data:incData,borderColor:COLORS.cyan,borderWidth:1.5,backgroundColor:rgba(COLORS.cyan,.08),fill:true,tension:.35,pointRadius:0,pointHoverRadius:4},{label:'Critical',data:incLabels.map((_,i)=>Math.floor(1+Math.sin(i*.8)*1+Math.random()*2)),borderColor:COLORS.red,borderWidth:1.5,backgroundColor:rgba(COLORS.red,.06),fill:true,tension:.35,pointRadius:0,pointHoverRadius:4}]},options:{...baseOpts,plugins:{...baseOpts.plugins,legend:{display:true,position:'top',labels:{color:'#6FA8CC',boxWidth:10,font:{size:10}}}},scales:{x:{grid:{color:gridColor},ticks:{color:'#6FA8CC',maxTicksLimit:10}},y:{grid:{color:gridColor},ticks:{color:'#6FA8CC'}}}}});
-
-// ── Severity Donut ──────────────────────────
-new Chart(document.getElementById('sevDonut'),{type:'doughnut',data:{labels:['Critical','High','Medium','Low'],datasets:[{data:[3,4,7,10],backgroundColor:[rgba(COLORS.red,.82),rgba(COLORS.amber,.78),rgba(COLORS.cyan,.72),rgba(COLORS.green,.65)],borderColor:'#050D1F',borderWidth:2,hoverOffset:5}]},options:{...baseOpts,cutout:'66%'}});
-
-// ── SLA Bar ──────────────────────────
-new Chart(document.getElementById('slaBar'),{type:'bar',data:{labels:['Critical\n≤15min','High\n≤1hr','Medium\n≤4hr','Low\n≤24hr'],datasets:[{label:'Met',data:[88,94,97,99],backgroundColor:rgba(COLORS.green,.72),borderRadius:4},{label:'Missed',data:[12,6,3,1],backgroundColor:rgba(COLORS.red,.6),borderRadius:4}]},options:{...baseOpts,indexAxis:'y',plugins:{...baseOpts.plugins,legend:{display:true,position:'top',labels:{color:'#6FA8CC',boxWidth:10,font:{size:10}}}},scales:{x:{grid:{color:gridColor},ticks:{color:'#6FA8CC'},max:100,stacked:true},y:{grid:{display:false},ticks:{color:'#6FA8CC'},stacked:true}}}});
-
-// ── MTTR Distribution ──────────────────────────
-new Chart(document.getElementById('mttrBar'),{type:'bar',data:{labels:['<30min','30-60min','1-4hr','4-24hr','>24hr'],datasets:[{label:'% Incidents',data:[41,24,17,14,4],backgroundColor:[rgba(COLORS.green,.75),rgba(COLORS.cyan,.7),rgba(COLORS.amber,.65),rgba(COLORS.orange,.65),rgba(COLORS.red,.75)],borderRadius:4}]},options:{...baseOpts,scales:{x:{grid:{color:gridColor},ticks:{color:'#6FA8CC',font:{size:9}}},y:{grid:{color:gridColor},ticks:{color:'#6FA8CC'}}}}});
-
-// ── Geo Bar (Threat) ──────────────────────────
-new Chart(document.getElementById('geoBar'),{type:'bar',data:{labels:['🇨🇳 China','🇷🇺 Russia','🇰🇵 N.Korea','🇮🇷 Iran','🇧🇷 Brazil','🇺🇸 USA','🇩🇪 Germany','🇳🇱 Netherlands'],datasets:[{label:'Tấn công',data:[1842,967,412,298,187,143,98,74],backgroundColor:[rgba(COLORS.red,.82),rgba(COLORS.red,.72),rgba(COLORS.red,.62),rgba(COLORS.amber,.72),rgba(COLORS.amber,.6),rgba(COLORS.cyan,.6),rgba(COLORS.cyan,.5),rgba(COLORS.green,.55)],borderRadius:4}]},options:{...baseOpts,scales:{x:{grid:{color:gridColor},ticks:{color:'#6FA8CC',font:{size:9}}},y:{grid:{color:gridColor},ticks:{color:'#6FA8CC'}}}}});
-
-// ── Vector Donut ──────────────────────────
-new Chart(document.getElementById('vectorDonut'),{type:'doughnut',data:{labels:['Email/Phishing','Web Exploit','Credential','Supply Chain'],datasets:[{data:[78,45,38,15],backgroundColor:[rgba(COLORS.amber,.8),rgba(COLORS.cyan,.75),rgba(COLORS.purple,.75),rgba(COLORS.red,.75)],borderColor:'#050D1F',borderWidth:2,hoverOffset:5}]},options:{...baseOpts,cutout:'65%'}});
-
-// ── MITRE Bar ──────────────────────────
-new Chart(document.getElementById('mitreBar'),{type:'bar',data:{labels:['Initial Access','Execution','Persistence','Priv Esc','Defense Evasion','Cred Access','Lateral Mvt','Exfiltration'],datasets:[{label:'Techniques',data:[12,8,5,4,9,6,3,1],backgroundColor:(ctx)=>{const colors=[COLORS.red,COLORS.red,COLORS.amber,COLORS.amber,COLORS.cyan,COLORS.amber,COLORS.red,COLORS.green];return rgba(colors[ctx.dataIndex]||COLORS.cyan,.72);},borderRadius:3}]},options:{...baseOpts,indexAxis:'y',scales:{x:{grid:{color:gridColor},ticks:{color:'#6FA8CC'}},y:{grid:{display:false},ticks:{color:'#6FA8CC',font:{size:9}}}}}});
-
-// ── Risk Distribution ──────────────────────────
-new Chart(document.getElementById('riskDist'),{type:'bar',data:{labels:['0-20','21-40','41-60','61-80','81-100'],datasets:[{label:'Số user',data:[1050,380,145,62,8],backgroundColor:[rgba(COLORS.green,.65),rgba(COLORS.cyan,.65),rgba(COLORS.amber,.65),rgba(COLORS.orange,.7),rgba(COLORS.red,.8)],borderRadius:4}]},options:{...baseOpts,scales:{x:{grid:{color:gridColor},ticks:{color:'#6FA8CC'}},y:{grid:{color:gridColor},ticks:{color:'#6FA8CC'}}}}});
-
-// ── Anomaly Bar ──────────────────────────
-new Chart(document.getElementById('anomalyBar'),{type:'bar',data:{labels:['Data Exfil','Impossible\nTravel','After-hours','Mass\nDownload','Priv Esc','Failed Auth','Unusual\nLocation'],datasets:[{label:'Events',data:[6,3,9,5,4,11,5],backgroundColor:[rgba(COLORS.red,.8),rgba(COLORS.red,.7),rgba(COLORS.amber,.7),rgba(COLORS.amber,.7),rgba(COLORS.purple,.7),rgba(COLORS.cyan,.7),rgba(COLORS.cyan,.65)],borderRadius:4}]},options:{...baseOpts,scales:{x:{grid:{color:gridColor},ticks:{color:'#6FA8CC',font:{size:8}}},y:{grid:{color:gridColor},ticks:{color:'#6FA8CC'}}}}});
-
-// ── Dept Risk Bar ──────────────────────────
-new Chart(document.getElementById('deptBar'),{type:'bar',data:{labels:['Finance','IT/Admin','Sales','Legal','HR','Operations'],datasets:[{label:'Risk Score',data:[82,70,65,48,40,28],backgroundColor:[rgba(COLORS.red,.8),rgba(COLORS.amber,.75),rgba(COLORS.amber,.7),rgba(COLORS.cyan,.65),rgba(COLORS.cyan,.6),rgba(COLORS.green,.65)],borderRadius:4}]},options:{...baseOpts,indexAxis:'y',scales:{x:{grid:{color:gridColor},ticks:{color:'#6FA8CC'},max:100},y:{grid:{display:false},ticks:{color:'#6FA8CC',font:{size:10}}}}}});
-
-// ── Bubble Map ──────────────────────────
-const bubbleData=[
-  {label:'Botnet',size:72,color:'#FF3D5A',count:'3,412'},
-  {label:'APT-41',size:56,color:'#B06AFF',count:'847'},
-  {label:'Lazarus',size:50,color:'#FF7040',count:'412'},
-  {label:'Fancy Bear',size:44,color:'#FFB400',count:'298'},
-  {label:'Cobalt\nStrike',size:40,color:'#00C8FF',count:'215'},
-  {label:'Script\nKiddie',size:34,color:'#00E5A0',count:'981'},
-  {label:'Carbanak',size:30,color:'#FF4FAD',count:'124'},
-  {label:'TA505',size:26,color:'#FFB400',count:'88'},
-];
-const bw=document.getElementById('bubble-wrap');
-bubbleData.forEach(b=>{
-  const el=document.createElement('div');
-  el.className='bubble';
-  el.style.cssText=`width:${b.size}px;height:${b.size}px;background:${b.color}20;border:1.5px solid ${b.color}60;color:${b.color};font-size:${b.size>45?9:8}px;`;
-  el.innerHTML=`<span style="text-align:center;line-height:1.2;">${b.label}</span>`;
-  el.title=`${b.label}: ${b.count} events`;
-  bw.appendChild(el);
-});
-
-// ── UBA Heatmap ──────────────────────────
-const ubaData=[[1,0,1,3,0,1,2,1,2,2,1,2,3,2,1,2,1,1,2,1,1,2,1,1],[0,1,0,1,2,1,2,1,2,3,2,1,2,3,2,2,1,2,1,1,2,1,1,0],[1,0,2,1,0,1,1,1,2,2,4,7,3,5,2,2,1,3,2,1,2,1,1,1],[0,1,1,0,1,1,2,1,2,3,2,2,3,4,3,2,2,4,3,2,2,2,1,1],[2,1,0,1,1,1,2,2,3,2,5,9,4,6,4,3,2,3,2,2,3,2,2,1],[0,0,1,0,1,0,1,1,1,1,2,1,2,2,1,1,1,1,1,1,1,1,0,0],[1,0,0,1,0,0,1,0,1,1,1,1,1,2,1,1,0,1,1,0,1,1,0,1]];
-const hm=document.getElementById('uba-heatmap');
-hm.style.cssText='display:flex;flex-direction:column;gap:3px;flex:1;';
-ubaData.forEach(row=>{
-  const r=document.createElement('div');
-  r.style.cssText='display:flex;gap:3px;';
-  row.forEach(v=>{
-    const c=document.createElement('div');
-    const bg=v<2?'rgba(0,229,160,.1)':v<4?'rgba(255,180,0,.22)':v<7?'rgba(255,61,90,.38)':'rgba(255,61,90,.78)';
-    c.style.cssText=`flex:1;height:16px;border-radius:2px;background:${bg};`;
-    r.appendChild(c);
-  });
-  hm.appendChild(r);
-});
-
-// ── Live Threat Feed ──────────────────────────
-const feedEvents=[
-  {time:'08:42',dot:'#FF3D5A',text:'<strong>Ransomware</strong> attempt blocked — FS-SHARE-04'},
-  {time:'08:39',dot:'#FFB400',text:'<strong>Phishing</strong> email delivered — 3 recipients opened'},
-  {time:'08:35',dot:'#FF3D5A',text:'<strong>C2 beacon</strong> detected — WS-0312 → 45.77.x.x'},
-  {time:'08:28',dot:'#00C8FF',text:'<strong>Port scan</strong> from 91.134.x.x — 847 ports'},
-  {time:'08:21',dot:'#FFB400',text:'<strong>Brute force</strong> SSH — PROD-02 — 124 attempts'},
-  {time:'08:14',dot:'#00E5A0',text:'Patch <strong>CVE-2026-0412</strong> verified on 487 hosts'},
-  {time:'08:08',dot:'#FF3D5A',text:'<strong>SQL injection</strong> attempt — WAF blocked'},
-  {time:'08:02',dot:'#B06AFF',text:'<strong>Privilege escalation</strong> alert — contractor account'},
-];
-const feed=document.getElementById('live-feed');
-feedEvents.forEach(e=>{
-  feed.innerHTML+=`<div class="feed-item"><span class="feed-time">${e.time}</span><div class="feed-dot" style="background:${e.dot};"></div><div class="feed-text">${e.text}</div></div>`;
-});
-// Auto-scroll simulation
-setInterval(()=>{
-  const times=['08:43','08:44','08:45','08:46'];
-  const msgs=[
-    `<strong>DNS exfiltration</strong> pattern — USER-2241`,
-    `<strong>Lateral movement</strong> detected — Finance subnet`,
-    `<strong>New IOC</strong> matched — hash 3f4a...c92b`,
-    `<strong>Login anomaly</strong> — off-hours admin access`
-  ];
-  const dots=['#FF3D5A','#FF3D5A','#FFB400','#FFB400'];
-  const i=Math.floor(Math.random()*msgs.length);
-  const item=document.createElement('div');
-  item.className='feed-item';
-  item.style.animation='fadein .3s ease';
-  item.innerHTML=`<span class="feed-time">${times[i]}</span><div class="feed-dot" style="background:${dots[i]};"></div><div class="feed-text">${msgs[i]}</div>`;
-  feed.insertBefore(item,feed.firstChild);
-  if(feed.children.length>10) feed.removeChild(feed.lastChild);
-},4000);
-
-// ── New SOC task dashboards ──────────────────────────
+const labels={executive:'Executive',operations:'SOC Operations',incident:'Alert & Incident',detection:'Detection & Anomaly',kpi:'KPI & SLA',pipeline:'Data Pipeline',ueba:'UBA / UEBA',optimization:'Optimization'};
+let chartRefs=[];
+function showPage(id,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');el.classList.add('active');document.getElementById('breadcrumb').innerHTML='SOC Analytics / <span>'+labels[id]+'</span>';setTimeout(()=>chartRefs.forEach(c=>c.resize()),80)}
+function clock(){const n=new Date();const d=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];document.getElementById('clock').textContent=`${d[n.getDay()]} ${String(n.getDate()).padStart(2,'0')}/${String(n.getMonth()+1).padStart(2,'0')}/${n.getFullYear()} · ${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}:${String(n.getSeconds()).padStart(2,'0')} ICT`}
+clock();setInterval(clock,1000);
+Chart.defaults.color='#55738c';Chart.defaults.font.family="'JetBrains Mono', monospace";Chart.defaults.font.size=10;
+const C={blue:'#1463ff',cyan:'#009de0',red:'#e43d5a',amber:'#e8a100',green:'#00a676',purple:'#7a52d1',orange:'#e56b2f'};
+function rgba(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `rgba(${r},${g},${b},${a})`}
+const grid='#d9e9f7';
+const opts={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(7,45,90,.92)',borderColor:'rgba(255,255,255,.12)',borderWidth:1,titleColor:'#fff',bodyColor:'#d9ecff',padding:10}},scales:{x:{grid:{color:grid},ticks:{color:'#55738c'}},y:{grid:{color:grid},ticks:{color:'#55738c'}}}};
+function add(id,type,data,options={}){const el=document.getElementById(id);if(!el)return;chartRefs.push(new Chart(el,{type,data,options:{...opts,...options,plugins:{...opts.plugins,...(options.plugins||{})},scales:options.scales||opts.scales}}))}
+const days14=Array.from({length:14},(_,i)=>'D-'+(13-i));
+const days30=Array.from({length:30},(_,i)=>String(i+1));
 const hours24=Array.from({length:24},(_,i)=>String(i).padStart(2,'0')+':00');
-new Chart(document.getElementById('opsLogTrend'),{type:'line',data:{labels:hours24,datasets:[
-  {label:'Firewall',data:hours24.map((_,i)=>Math.floor(420+Math.sin(i*.5)*90+Math.random()*70)),borderColor:COLORS.cyan,backgroundColor:rgba(COLORS.cyan,.06),fill:true,tension:.35,pointRadius:0},
-  {label:'EDR',data:hours24.map((_,i)=>Math.floor(360+Math.cos(i*.45)*75+Math.random()*65)),borderColor:COLORS.green,backgroundColor:rgba(COLORS.green,.05),fill:true,tension:.35,pointRadius:0},
-  {label:'Email',data:hours24.map((_,i)=>Math.floor(250+Math.sin(i*.7)*60+Math.random()*45)),borderColor:COLORS.amber,backgroundColor:rgba(COLORS.amber,.05),fill:true,tension:.35,pointRadius:0}
-]},options:{...baseOpts,plugins:{...baseOpts.plugins,legend:{display:true,position:'top',labels:{color:'#6FA8CC',boxWidth:10,font:{size:10}}}},scales:{x:{grid:{color:gridColor},ticks:{color:'#6FA8CC',maxTicksLimit:8}},y:{grid:{color:gridColor},ticks:{color:'#6FA8CC'}}}}});
-
-new Chart(document.getElementById('alertFunnel'),{type:'bar',data:{labels:['Raw Alerts','Deduped','Correlated','Incidents','Critical'],datasets:[{label:'Count',data:[1847,1235,412,24,3],backgroundColor:[rgba(COLORS.cyan,.65),rgba(COLORS.green,.65),rgba(COLORS.amber,.7),rgba(COLORS.orange,.72),rgba(COLORS.red,.8)],borderRadius:4}]},options:{...baseOpts,indexAxis:'y',scales:{x:{grid:{color:gridColor},ticks:{color:'#6FA8CC'}},y:{grid:{display:false},ticks:{color:'#6FA8CC'}}}}});
-
-new Chart(document.getElementById('ticketQueue'),{type:'doughnut',data:{labels:['New','Triage','Investigating','Waiting','Closed'],datasets:[{data:[14,41,29,12,71],backgroundColor:[rgba(COLORS.red,.75),rgba(COLORS.amber,.75),rgba(COLORS.cyan,.7),rgba(COLORS.purple,.7),rgba(COLORS.green,.7)],borderColor:'#050D1F',borderWidth:2}]},options:{...baseOpts,cutout:'64%'}});
-
-new Chart(document.getElementById('baselineBand'),{type:'line',data:{labels:hours24,datasets:[
-  {label:'Baseline upper',data:hours24.map((_,i)=>Math.floor(70+Math.sin(i*.4)*12)),borderColor:rgba(COLORS.green,.55),borderDash:[4,3],borderWidth:1,pointRadius:0,tension:.35},
-  {label:'Observed',data:[48,52,50,54,57,62,66,74,88,93,105,142,178,211,190,166,139,128,111,95,84,76,69,61],borderColor:COLORS.red,backgroundColor:rgba(COLORS.red,.08),fill:true,borderWidth:1.7,pointRadius:0,tension:.35}
-]},options:{...baseOpts,plugins:{...baseOpts.plugins,legend:{display:true,position:'top',labels:{color:'#6FA8CC',boxWidth:10,font:{size:10}}}},scales:{x:{grid:{color:gridColor},ticks:{color:'#6FA8CC',maxTicksLimit:8}},y:{grid:{color:gridColor},ticks:{color:'#6FA8CC'}}}}});
-
-new Chart(document.getElementById('anomalyEntities'),{type:'bar',data:{labels:['nvan','VPN-GW-02','WS-0312','CloudTrail','HR Mailbox','PROD-02'],datasets:[{label:'Anomaly Score',data:[96,91,88,64,58,51],backgroundColor:[rgba(COLORS.red,.82),rgba(COLORS.red,.75),rgba(COLORS.red,.7),rgba(COLORS.amber,.7),rgba(COLORS.cyan,.65),rgba(COLORS.green,.62)],borderRadius:4}]},options:{...baseOpts,indexAxis:'y',scales:{x:{max:100,grid:{color:gridColor},ticks:{color:'#6FA8CC'}},y:{grid:{display:false},ticks:{color:'#6FA8CC'}}}}});
-
-new Chart(document.getElementById('serviceSpikes'),{type:'bar',data:{labels:['VPN','AD','Email','EDR','WAF'],datasets:[{label:'× baseline',data:[4.8,2.1,1.8,1.4,1.2],backgroundColor:[rgba(COLORS.red,.8),rgba(COLORS.amber,.75),rgba(COLORS.amber,.65),rgba(COLORS.cyan,.6),rgba(COLORS.green,.6)],borderRadius:4}]},options:{...baseOpts,scales:{x:{grid:{color:gridColor},ticks:{color:'#6FA8CC'}},y:{grid:{color:gridColor},ticks:{color:'#6FA8CC'}}}}});
-
-new Chart(document.getElementById('anomalyScoreMix'),{type:'doughnut',data:{labels:['Behavior','Volume','Geo','Threat Intel'],datasets:[{data:[38,27,21,14],backgroundColor:[rgba(COLORS.purple,.75),rgba(COLORS.amber,.75),rgba(COLORS.cyan,.7),rgba(COLORS.red,.75)],borderColor:'#050D1F',borderWidth:2}]},options:{...baseOpts,cutout:'65%'}});
-
-new Chart(document.getElementById('kpiTrend'),{type:'line',data:{labels:Array.from({length:14},(_,i)=>'D-'+(13-i)),datasets:[
-  {label:'MTTD (min)',data:[21,19,18,17,16,19,15,16,15,14,13,15,14,14],borderColor:COLORS.cyan,backgroundColor:rgba(COLORS.cyan,.06),fill:true,tension:.35,pointRadius:2},
-  {label:'MTTR (min)',data:[68,64,61,57,58,55,54,52,51,50,49,50,48,48],borderColor:COLORS.green,backgroundColor:rgba(COLORS.green,.05),fill:true,tension:.35,pointRadius:2}
-]},options:{...baseOpts,plugins:{...baseOpts.plugins,legend:{display:true,position:'top',labels:{color:'#6FA8CC',boxWidth:10,font:{size:10}}}},scales:{x:{grid:{color:gridColor},ticks:{color:'#6FA8CC'}},y:{grid:{color:gridColor},ticks:{color:'#6FA8CC'}}}}});
-
-new Chart(document.getElementById('slaBySeverity'),{type:'bar',data:{labels:['Critical','High','Medium','Low'],datasets:[{label:'SLA %',data:[88,94,97,99],backgroundColor:[rgba(COLORS.red,.75),rgba(COLORS.amber,.75),rgba(COLORS.cyan,.7),rgba(COLORS.green,.7)],borderRadius:4}]},options:{...baseOpts,scales:{x:{grid:{display:false},ticks:{color:'#6FA8CC'}},y:{max:100,grid:{color:gridColor},ticks:{color:'#6FA8CC'}}}}});
-
-new Chart(document.getElementById('fpRateTrend'),{type:'bar',data:{labels:['VPN BF','EDR Malware','Phishing','Cloud IAM','WAF SQLi'],datasets:[{label:'FPR %',data:[41,18,24,13,16],backgroundColor:[rgba(COLORS.red,.8),rgba(COLORS.cyan,.65),rgba(COLORS.amber,.72),rgba(COLORS.green,.65),rgba(COLORS.cyan,.58)],borderRadius:4}]},options:{...baseOpts,indexAxis:'y',scales:{x:{max:50,grid:{color:gridColor},ticks:{color:'#6FA8CC'}},y:{grid:{display:false},ticks:{color:'#6FA8CC'}}}}});
-
-new Chart(document.getElementById('incidentVolumeType'),{type:'doughnut',data:{labels:['Malware','Phishing','Credential','Web','Insider'],datasets:[{data:[7,6,5,4,2],backgroundColor:[rgba(COLORS.red,.78),rgba(COLORS.amber,.75),rgba(COLORS.purple,.72),rgba(COLORS.cyan,.7),rgba(COLORS.green,.65)],borderColor:'#050D1F',borderWidth:2}]},options:{...baseOpts,cutout:'63%'}});
-
-new Chart(document.getElementById('etlSourceVolume'),{type:'bar',data:{labels:['Firewall','EDR','VPN','AD','Email','Cloud'],datasets:[{label:'Events M/day',data:[12.8,9.4,1.1,4.7,6.9,3.7],backgroundColor:rgba(COLORS.cyan,.65),borderRadius:4},{label:'Parse Success %',data:[98.7,97.9,91.2,96.4,98.1,86.5],type:'line',borderColor:COLORS.green,backgroundColor:rgba(COLORS.green,.08),yAxisID:'y1',tension:.35,pointRadius:3}]},options:{...baseOpts,plugins:{...baseOpts.plugins,legend:{display:true,position:'top',labels:{color:'#6FA8CC',boxWidth:10,font:{size:10}}}},scales:{x:{grid:{color:gridColor},ticks:{color:'#6FA8CC'}},y:{grid:{color:gridColor},ticks:{color:'#6FA8CC'},title:{display:true,text:'M events',color:'#6FA8CC'}},y1:{position:'right',min:80,max:100,grid:{drawOnChartArea:false},ticks:{color:'#6FA8CC'}}}}});
-
-new Chart(document.getElementById('dqScore'),{type:'radar',data:{labels:['Complete','Unique','Timely','Valid','Consistent','Enriched'],datasets:[{label:'DQ Score',data:[97,99,91,96,88,93],borderColor:COLORS.cyan,backgroundColor:rgba(COLORS.cyan,.12),pointBackgroundColor:COLORS.cyan,borderWidth:1.5}]},options:{...baseOpts,scales:{r:{angleLines:{color:gridColor},grid:{color:gridColor},pointLabels:{color:'#6FA8CC',font:{size:9}},ticks:{display:false},suggestedMin:70,suggestedMax:100}}}});
-
-new Chart(document.getElementById('processBottleneck'),{type:'bar',data:{labels:['Triage','Investigation','Escalation','Containment','Closure'],datasets:[{label:'Avg minutes',data:[17,22,8,11,6],backgroundColor:[rgba(COLORS.red,.78),rgba(COLORS.amber,.72),rgba(COLORS.cyan,.65),rgba(COLORS.green,.65),rgba(COLORS.cyan,.55)],borderRadius:4},{label:'P95 minutes',data:[46,64,28,24,16],backgroundColor:rgba(COLORS.purple,.55),borderRadius:4}]},options:{...baseOpts,plugins:{...baseOpts.plugins,legend:{display:true,position:'top',labels:{color:'#6FA8CC',boxWidth:10,font:{size:10}}}},scales:{x:{grid:{display:false},ticks:{color:'#6FA8CC'}},y:{grid:{color:gridColor},ticks:{color:'#6FA8CC'}}}}});
-
-new Chart(document.getElementById('automationROI'),{type:'bar',data:{labels:['IOC enrich','Dedup phishing','VPN tuning','SLA bot','RCA draft'],datasets:[{label:'Hours saved/month',data:[14,11,8,5,4],backgroundColor:[rgba(COLORS.green,.75),rgba(COLORS.cyan,.7),rgba(COLORS.amber,.7),rgba(COLORS.purple,.65),rgba(COLORS.cyan,.58)],borderRadius:4}]},options:{...baseOpts,indexAxis:'y',scales:{x:{grid:{color:gridColor},ticks:{color:'#6FA8CC'}},y:{grid:{display:false},ticks:{color:'#6FA8CC',font:{size:9}}}}}});
-
-new Chart(document.getElementById('analystLoad'),{type:'bar',data:{labels:['Nguyen','Le','Pham','Tran','Hoang','Auto'],datasets:[{label:'Open cases',data:[9,7,6,5,4,18],backgroundColor:[rgba(COLORS.red,.75),rgba(COLORS.amber,.72),rgba(COLORS.amber,.64),rgba(COLORS.cyan,.65),rgba(COLORS.green,.62),rgba(COLORS.purple,.65)],borderRadius:4}]},options:{...baseOpts,scales:{x:{grid:{display:false},ticks:{color:'#6FA8CC'}},y:{grid:{color:gridColor},ticks:{color:'#6FA8CC'}}}}});
-
+add('execRiskTrend','line',{labels:days14,datasets:[{label:'Risk score',data:[58,55,61,63,60,68,71,69,72,76,79,74,77,81],borderColor:C.amber,backgroundColor:rgba(C.amber,.10),fill:true,tension:.35,pointRadius:2},{label:'Incidents',data:[4,3,5,4,4,6,7,5,8,7,9,6,8,7],borderColor:C.red,backgroundColor:rgba(C.red,.06),fill:true,tension:.35,pointRadius:2}]},{plugins:{legend:{display:true,position:'top',labels:{boxWidth:10}}}});
+add('execIncidentMix','doughnut',{labels:['Malware','Phishing','Credential','Web','Insider'],datasets:[{data:[7,6,5,4,2],backgroundColor:[rgba(C.red,.8),rgba(C.amber,.75),rgba(C.purple,.72),rgba(C.blue,.7),rgba(C.green,.65)],borderColor:'#fff',borderWidth:2}]},{cutout:'62%',scales:{}});
+add('execVectors','bar',{labels:['Email','Credential','Web','Endpoint','Cloud'],datasets:[{label:'Count',data:[78,45,38,31,22],backgroundColor:[rgba(C.amber,.75),rgba(C.purple,.72),rgba(C.blue,.7),rgba(C.green,.65),rgba(C.red,.7)],borderRadius:8}]});
+add('opsLogTrend','line',{labels:hours24,datasets:[{label:'Firewall',data:hours24.map((_,i)=>Math.round(420+Math.sin(i*.5)*90+(i%5)*18)),borderColor:C.blue,backgroundColor:rgba(C.blue,.07),fill:true,tension:.35,pointRadius:0},{label:'EDR',data:hours24.map((_,i)=>Math.round(360+Math.cos(i*.45)*75+(i%4)*14)),borderColor:C.green,backgroundColor:rgba(C.green,.06),fill:true,tension:.35,pointRadius:0},{label:'Email',data:hours24.map((_,i)=>Math.round(250+Math.sin(i*.7)*60+(i%3)*16)),borderColor:C.amber,backgroundColor:rgba(C.amber,.06),fill:true,tension:.35,pointRadius:0}]},{plugins:{legend:{display:true,position:'top',labels:{boxWidth:10}}},scales:{x:{grid:{color:grid},ticks:{maxTicksLimit:8,color:'#55738c'}},y:{grid:{color:grid},ticks:{color:'#55738c'}}}});
+add('opsTicketQueue','doughnut',{labels:['New','Triage','Investigating','Waiting','Closed'],datasets:[{data:[14,41,29,12,71],backgroundColor:[rgba(C.red,.75),rgba(C.amber,.75),rgba(C.blue,.7),rgba(C.purple,.65),rgba(C.green,.7)],borderColor:'#fff',borderWidth:2}]},{cutout:'64%',scales:{}});
+add('opsAlertFunnel','bar',{labels:['Raw alerts','Deduped','Correlated','Incidents','Critical'],datasets:[{label:'Count',data:[1847,1235,412,24,3],backgroundColor:[rgba(C.blue,.65),rgba(C.green,.65),rgba(C.amber,.7),rgba(C.orange,.72),rgba(C.red,.8)],borderRadius:8}]},{indexAxis:'y'});
+add('incTrend','line',{labels:days30,datasets:[{label:'Total',data:days30.map((_,i)=>Math.round(8+Math.sin(i*.52)*4+(i%6))),borderColor:C.blue,backgroundColor:rgba(C.blue,.08),fill:true,tension:.35,pointRadius:0},{label:'Critical',data:days30.map((_,i)=>Math.max(0,Math.round(1+Math.sin(i*.83)*1+(i%4===0?1:0)))),borderColor:C.red,backgroundColor:rgba(C.red,.05),fill:true,tension:.35,pointRadius:0}]},{plugins:{legend:{display:true,position:'top',labels:{boxWidth:10}}},scales:{x:{grid:{color:grid},ticks:{maxTicksLimit:10,color:'#55738c'}},y:{grid:{color:grid},ticks:{color:'#55738c'}}}});
+add('incSeverity','doughnut',{labels:['Critical','High','Medium','Low'],datasets:[{data:[3,4,7,10],backgroundColor:[rgba(C.red,.82),rgba(C.amber,.78),rgba(C.blue,.72),rgba(C.green,.68)],borderColor:'#fff',borderWidth:2}]},{cutout:'66%',scales:{}});
+add('incResponseTime','bar',{labels:['Critical','High','Medium','Low'],datasets:[{label:'MTTD min',data:[8,14,24,40],backgroundColor:rgba(C.blue,.68),borderRadius:8},{label:'MTTR min',data:[42,58,126,310],backgroundColor:rgba(C.green,.65),borderRadius:8}]},{plugins:{legend:{display:true,position:'top',labels:{boxWidth:10}}}});
+add('detBaseline','line',{labels:hours24,datasets:[{label:'Baseline upper',data:hours24.map((_,i)=>Math.round(72+Math.sin(i*.4)*12)),borderColor:rgba(C.green,.65),borderDash:[5,4],borderWidth:1.5,pointRadius:0,tension:.35},{label:'Observed',data:[48,52,50,54,57,62,66,74,88,93,105,142,178,211,190,166,139,128,111,95,84,76,69,61],borderColor:C.red,backgroundColor:rgba(C.red,.08),fill:true,borderWidth:2,pointRadius:0,tension:.35}]},{plugins:{legend:{display:true,position:'top',labels:{boxWidth:10}}},scales:{x:{grid:{color:grid},ticks:{maxTicksLimit:8,color:'#55738c'}},y:{grid:{color:grid},ticks:{color:'#55738c'}}}});
+add('detServiceSpikes','bar',{labels:['VPN','AD','Email','EDR','WAF'],datasets:[{label:'× baseline',data:[4.8,2.1,1.8,1.4,1.2],backgroundColor:[rgba(C.red,.8),rgba(C.amber,.75),rgba(C.amber,.65),rgba(C.blue,.6),rgba(C.green,.6)],borderRadius:8}]});
+add('detEntities','bar',{labels:['nvan','VPN-GW-02','WS-0312','CloudTrail','HR Mailbox','PROD-02'],datasets:[{label:'Anomaly score',data:[96,91,88,64,58,51],backgroundColor:[rgba(C.red,.82),rgba(C.red,.75),rgba(C.red,.7),rgba(C.amber,.7),rgba(C.blue,.65),rgba(C.green,.62)],borderRadius:8}]},{indexAxis:'y',scales:{x:{max:100,grid:{color:grid},ticks:{color:'#55738c'}},y:{grid:{display:false},ticks:{color:'#55738c'}}}});
+add('detMitre','bar',{labels:['Initial','Execution','Persistence','Priv Esc','Defense','Cred','Lateral','Exfil'],datasets:[{label:'Techniques',data:[12,8,5,4,9,6,3,1],backgroundColor:[rgba(C.red,.75),rgba(C.red,.65),rgba(C.amber,.7),rgba(C.amber,.62),rgba(C.blue,.65),rgba(C.purple,.65),rgba(C.red,.55),rgba(C.green,.65)],borderRadius:8}]},{indexAxis:'y'});
+add('kpiTrend','line',{labels:days14,datasets:[{label:'MTTD',data:[21,19,18,17,16,19,15,16,15,14,13,15,14,14],borderColor:C.blue,backgroundColor:rgba(C.blue,.07),fill:true,tension:.35,pointRadius:2},{label:'MTTR',data:[68,64,61,57,58,55,54,52,51,50,49,50,48,48],borderColor:C.green,backgroundColor:rgba(C.green,.06),fill:true,tension:.35,pointRadius:2}]},{plugins:{legend:{display:true,position:'top',labels:{boxWidth:10}}}});
+add('kpiSla','bar',{labels:['Critical','High','Medium','Low'],datasets:[{label:'SLA %',data:[88,94,97,99],backgroundColor:[rgba(C.red,.75),rgba(C.amber,.75),rgba(C.blue,.7),rgba(C.green,.7)],borderRadius:8}]},{scales:{x:{grid:{display:false},ticks:{color:'#55738c'}},y:{max:100,grid:{color:grid},ticks:{color:'#55738c'}}}});
+add('kpiFpr','bar',{labels:['VPN BF','EDR Malware','Phishing','Cloud IAM','WAF SQLi'],datasets:[{label:'FPR %',data:[41,18,24,13,16],backgroundColor:[rgba(C.red,.8),rgba(C.blue,.65),rgba(C.amber,.72),rgba(C.green,.65),rgba(C.cyan,.58)],borderRadius:8}]},{indexAxis:'y',scales:{x:{max:50,grid:{color:grid},ticks:{color:'#55738c'}},y:{grid:{display:false},ticks:{color:'#55738c'}}}});
+add('kpiVolume','doughnut',{labels:['Malware','Phishing','Credential','Web','Insider'],datasets:[{data:[7,6,5,4,2],backgroundColor:[rgba(C.red,.78),rgba(C.amber,.75),rgba(C.purple,.72),rgba(C.blue,.7),rgba(C.green,.65)],borderColor:'#fff',borderWidth:2}]},{cutout:'63%',scales:{}});
+add('pipeSourceVolume','bar',{labels:['Firewall','EDR','VPN','AD','Email','Cloud'],datasets:[{label:'Events M/day',data:[12.8,9.4,1.1,4.7,6.9,3.7],backgroundColor:rgba(C.blue,.65),borderRadius:8},{label:'Parse %',data:[98.7,97.9,91.2,96.4,98.1,86.5],type:'line',borderColor:C.green,backgroundColor:rgba(C.green,.08),yAxisID:'y1',tension:.35,pointRadius:3}]},{plugins:{legend:{display:true,position:'top',labels:{boxWidth:10}}},scales:{x:{grid:{color:grid},ticks:{color:'#55738c'}},y:{grid:{color:grid},ticks:{color:'#55738c'}},y1:{position:'right',min:80,max:100,grid:{drawOnChartArea:false},ticks:{color:'#55738c'}}}});
+add('pipeDq','radar',{labels:['Complete','Unique','Timely','Valid','Consistent','Enriched'],datasets:[{label:'DQ score',data:[97,99,91,96,88,93],borderColor:C.blue,backgroundColor:rgba(C.blue,.12),pointBackgroundColor:C.blue,borderWidth:2}]},{scales:{r:{angleLines:{color:grid},grid:{color:grid},pointLabels:{color:'#55738c',font:{size:10}},ticks:{display:false},suggestedMin:70,suggestedMax:100}}});
+add('pipeFreshness','bar',{labels:['Firewall','EDR','VPN','AD','Email','Cloud'],datasets:[{label:'Latency min',data:[2,3,9,4,5,16],backgroundColor:[rgba(C.green,.7),rgba(C.green,.66),rgba(C.amber,.75),rgba(C.green,.62),rgba(C.blue,.62),rgba(C.red,.75)],borderRadius:8}]});
+add('uebaRiskDist','bar',{labels:['0-20','21-40','41-60','61-80','81-100'],datasets:[{label:'Users',data:[1050,380,145,62,8],backgroundColor:[rgba(C.green,.65),rgba(C.blue,.62),rgba(C.amber,.66),rgba(C.orange,.7),rgba(C.red,.8)],borderRadius:8}]});
+add('uebaAnomalyType','bar',{labels:['Data Exfil','Travel','After-hours','Mass DL','Priv Esc','Failed Auth'],datasets:[{label:'Events',data:[6,3,9,5,4,11],backgroundColor:[rgba(C.red,.8),rgba(C.red,.68),rgba(C.amber,.7),rgba(C.amber,.65),rgba(C.purple,.68),rgba(C.blue,.68)],borderRadius:8}]});
+add('uebaDept','bar',{labels:['Finance','IT/Admin','Sales','Legal','HR','Ops'],datasets:[{label:'Risk',data:[82,70,65,48,40,28],backgroundColor:[rgba(C.red,.8),rgba(C.amber,.75),rgba(C.amber,.65),rgba(C.blue,.65),rgba(C.blue,.55),rgba(C.green,.65)],borderRadius:8}]},{indexAxis:'y',scales:{x:{max:100,grid:{color:grid},ticks:{color:'#55738c'}},y:{grid:{display:false},ticks:{color:'#55738c'}}}});
+add('optBottleneck','bar',{labels:['Triage','Investigation','Escalation','Containment','Closure'],datasets:[{label:'Avg min',data:[17,22,8,11,6],backgroundColor:rgba(C.amber,.72),borderRadius:8},{label:'P95 min',data:[46,64,28,24,16],backgroundColor:rgba(C.purple,.56),borderRadius:8}]},{plugins:{legend:{display:true,position:'top',labels:{boxWidth:10}}}});
+add('optAutomation','bar',{labels:['IOC enrich','Dedup phishing','VPN tuning','SLA bot','RCA draft'],datasets:[{label:'Hours saved/month',data:[14,11,8,5,4],backgroundColor:[rgba(C.green,.75),rgba(C.blue,.7),rgba(C.amber,.7),rgba(C.purple,.65),rgba(C.cyan,.58)],borderRadius:8}]},{indexAxis:'y'});
+add('optAnalyst','bar',{labels:['Nguyen','Le','Pham','Tran','Hoang','Auto'],datasets:[{label:'Open cases',data:[9,7,6,5,4,18],backgroundColor:[rgba(C.red,.75),rgba(C.amber,.72),rgba(C.amber,.64),rgba(C.blue,.65),rgba(C.green,.62),rgba(C.purple,.65)],borderRadius:8}]});
+add('optCoverage','bar',{labels:['Triage','Enrich','Contain','Notify','Close'],datasets:[{label:'Automation %',data:[38,72,54,86,21],backgroundColor:[rgba(C.amber,.72),rgba(C.green,.72),rgba(C.blue,.68),rgba(C.green,.65),rgba(C.red,.65)],borderRadius:8}]},{scales:{x:{grid:{display:false},ticks:{color:'#55738c'}},y:{max:100,grid:{color:grid},ticks:{color:'#55738c'}}}});
+const heat=[[1,0,1,3,0,1,2,1,2,2,1,2,3,2,1,2,1,1,2,1,1,2,1,1],[0,1,0,1,2,1,2,1,2,3,2,1,2,3,2,2,1,2,1,1,2,1,1,0],[1,0,2,1,0,1,1,1,2,2,4,7,3,5,2,2,1,3,2,1,2,1,1,1],[0,1,1,0,1,1,2,1,2,3,2,2,3,4,3,2,2,4,3,2,2,2,1,1],[2,1,0,1,1,1,2,2,3,2,5,9,4,6,4,3,2,3,2,2,3,2,2,1],[0,0,1,0,1,0,1,1,1,1,2,1,2,2,1,1,1,1,1,1,1,1,0,0],[1,0,0,1,0,0,1,0,1,1,1,1,1,2,1,1,0,1,1,0,1,1,0,1]];
+const h=document.getElementById('uebaHeat');heat.forEach(r=>{const row=document.createElement('div');row.className='heat-row';r.forEach(v=>{const c=document.createElement('div');c.className='heat-cell '+(v<2?'h1':v<4?'h2':v<7?'h3':'h4');row.appendChild(c)});h.appendChild(row)});
 </script>
 </body>
 </html>
